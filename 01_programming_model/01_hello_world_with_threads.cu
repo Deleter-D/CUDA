@@ -1,3 +1,4 @@
+#include <device_launch_parameters.h>
 #include <stdio.h>
 
 __global__ void hello_from_gpu()
@@ -7,7 +8,7 @@ __global__ void hello_from_gpu()
 
 int main(int argc, char const *argv[])
 {
-    hello_from_gpu<<<1, 1>>>();
+    hello_from_gpu<<<2, 4>>>();
     cudaDeviceSynchronize();
     return 0;
 }
