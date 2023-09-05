@@ -7,9 +7,12 @@
 			"command": "/usr/local/cuda/bin/nvcc",
 			"args": [
 				"-g",
+				"-G",
 				"${file}",
 				"-o",
-				"${workspaceFolder}/out/${fileBasenameNoExtension}"
+				"${workspaceFolder}/out/${fileBasenameNoExtension}",
+				"-arch",
+				"sm_89"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
