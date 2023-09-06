@@ -11,8 +11,8 @@
 				"${file}",
 				"-o",
 				"${workspaceFolder}/out/${fileBasenameNoExtension}",
-				"-arch",
-				"sm_89"
+				// "-arch",
+				// "sm_89"
 			],
 			"options": {
 				"cwd": "${fileDirname}"
