@@ -64,7 +64,7 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaMalloc((void **)&d_ptr, 64));
     ERROR_CHECK(cudaMemset(d_ptr, 0, 64));
     ERROR_CHECK(cudaMemcpy(d_ptr, h_ptr, 64, cudaMemcpyHostToDevice));
-    kernel<<<2, 2048>>>(); // 核函数错误处理，block中最大包含1024个线程，此处一定会报错
+    kernel<<<2, 1025>>>(); // 核函数错误处理，block中最大包含1024个线程，此处一定会报错
     ERROR_CHECK(cudaGetLastError());
     ERROR_CHECK(cudaDeviceSynchronize());
     ERROR_CHECK(cudaFree(d_ptr));
@@ -73,7 +73,7 @@ int main(int argc, char const *argv[])
     // ErrorCheck(cudaMalloc((void **)&d_ptr, 64), __FILE__, __LINE__);
     // ErrorCheck(cudaMemset(d_ptr, 0, 64), __FILE__, __LINE__);
     // ErrorCheck(cudaMemcpy(d_ptr, h_ptr, 64, cudaMemcpyHostToDevice), __FILE__, __LINE__);
-    // kernel<<<2, 2048>>>(); // 核函数错误处理，block中最大包含1024个线程，此处一定会报错
+    // kernel<<<2, 1025>>>(); // 核函数错误处理，block中最大包含1024个线程，此处一定会报错
     // ErrorCheck(cudaGetLastError(), __FILE__, __LINE__);
     // ErrorCheck(cudaDeviceSynchronize(), __FILE__, __LINE__);
     // ErrorCheck(cudaFree(d_ptr), __FILE__, __LINE__);
