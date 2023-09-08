@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// 错误检查宏函数
 #define ERROR_CHECK(call)                                                                           \
     {                                                                                               \
         const cudaError_t error = call;                                                             \
@@ -12,6 +13,7 @@
         }                                                                                           \
     }
 
+// 错误检查普通函数
 cudaError_t ErrorCheck(cudaError_t error, const char *filename, int lineNumber)
 {
     if (error != cudaSuccess)
@@ -23,6 +25,7 @@ cudaError_t ErrorCheck(cudaError_t error, const char *filename, int lineNumber)
     return error;
 }
 
+// 初始化设备
 void setDevice()
 {
     int deviceCount = 0;
@@ -50,4 +53,34 @@ void setDevice()
     {
         printf("Set GPU %d for computing.\n", device);
     }
+}
+
+// 初始化float数据
+void initializaFloatData(float *ip, int size)
+{
+    time_t t;
+    srand((unsigned)time(&t));
+    for (int i = 0; i < size; i++)
+    {
+        ip[i] = (float)(rand() & 0xFF) / 10.f;
+    }
+}
+
+// 检查运算结果
+void checkResult(float *hostRef, float *gpuRef, const int N)
+{
+    double epsilon = 1.0E-8;
+    bool match = 1;
+    for (int i = 0; i < N; i++)
+    {
+        if (abs(hostRef[i] - gpuRef[i]) > epsilon)
+        {
+            match = 0;
+            printf("Arrays do not match!\n");
+            printf("host %5.2f gpu %5.2f at current index %d\n", hostRef[i], gpuRef[i], i);
+            break;
+        }
+    }
+    if (match)
+        printf("Arrays match!\n");
 }

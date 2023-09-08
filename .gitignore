@@ -1,1 +1,3 @@
 out/
+*.nsys-rep
+*.sqlite
