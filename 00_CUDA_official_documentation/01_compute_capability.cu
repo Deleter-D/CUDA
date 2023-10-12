@@ -16,7 +16,7 @@
     关于实际计算能力，使用nvcc编译器的-code选项指定
     nvcc path/to/01_compute_capability.cu -o path/to/out/01_compute_capability_89_sm_89 -arch=compute_89 -code=sm_89
     下面再分别编译出实际架构次版本号低于本机本机的可执行文件
-    nvcc path/to/01_compute_capability.cu -o path/to/out/01_compute_capability_86_sm_86 -arch=compute_86 -code=sm_86、
+    nvcc path/to/01_compute_capability.cu -o path/to/out/01_compute_capability_86_sm_86 -arch=compute_86 -code=sm_86
 
     均可以正常执行，由于笔者的GPU计算能力已经是8.x的最高计算能力了，就不再展示次版本号高于本机的情况了
 */

@@ -7,7 +7,6 @@
 			"command": "/usr/local/cuda/bin/nvcc",
 			"args": [
 				"-g",
-				"-G",
 				"${file}",
 				"-o",
 				"${workspaceFolder}/out/${fileBasenameNoExtension}",
