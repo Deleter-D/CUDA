@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <cuda_runtime.h>
 #include "../utils/common.cuh"
+#include "../utils/data.cuh"
 
 // Host端计算函数，用来验证核函数结果的正确性
 void sumMatrixOnHost(float *A, float *B, float *C, const int nx, const int ny)

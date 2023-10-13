@@ -55,17 +55,6 @@ void setDevice()
     }
 }
 
-// 初始化float数据
-void initializaFloatData(float *ip, int size)
-{
-    time_t t;
-    srand((unsigned)time(&t));
-    for (int i = 0; i < size; i++)
-    {
-        ip[i] = (float)(rand() & 0xFF) / 10.f;
-    }
-}
-
 // 检查运算结果
 void checkResult(float *hostRef, float *gpuRef, const int N)
 {
