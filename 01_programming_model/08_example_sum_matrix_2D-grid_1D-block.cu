@@ -54,8 +54,8 @@ int main(int argc, char const *argv[])
     gpuRef = (float *)malloc(nBytes);
 
     // 初始化主机端数据
-    initializaFloatData(h_A, nxy);
-    initializaFloatData(h_B, nxy);
+    initializaData<float>(h_A, nxy);
+    initializaData<float>(h_B, nxy);
     memset(hostRef, 0, nBytes);
     memset(gpuRef, 0, nBytes);
 
@@ -82,7 +82,7 @@ int main(int argc, char const *argv[])
     cudaMemcpy(gpuRef, d_MatC, nBytes, cudaMemcpyDeviceToHost);
 
     // 检查结果正确性
-    checkResult(hostRef, gpuRef, nxy);
+    checkResult<float>(hostRef, gpuRef, nxy);
 
     // 释放设备内存
     cudaFree(d_MatA);

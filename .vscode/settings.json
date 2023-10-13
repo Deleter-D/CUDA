@@ -2,6 +2,7 @@
     "files.associations": {
         "*.cu": "cpp",
         "__locale": "cpp",
-        "cstdlib": "cpp"
+        "cstdlib": "cpp",
+        "chrono": "cpp"
     }
 }

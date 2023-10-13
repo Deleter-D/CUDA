@@ -20,6 +20,12 @@
     sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 32 16
     sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 16 32
     sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 16 16
+
+    使用ncu分析不同block设计下的全局加载效率：
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 32 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 32 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 16 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 16 16
 */
 
 __global__ void sumMatrixOnGPU2D(float *A, float *B, float *C, int NX, int NY)
@@ -58,8 +64,8 @@ int main(int argc, char const *argv[])
     h_B = (float *)malloc(nx * ny * sizeof(float));
     h_C = (float *)malloc(nx * ny * sizeof(float));
 
-    initializaFloatData(h_A, nx * ny);
-    initializaFloatData(h_B, nx * ny);
+    initializaData<float>(h_A, nx * ny);
+    initializaData<float>(h_B, nx * ny);
 
     float *d_A, *d_B, *d_C;
     ERROR_CHECK(cudaMalloc((void **)&d_A, nx * ny * sizeof(float)));
