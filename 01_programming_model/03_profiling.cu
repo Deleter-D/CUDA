@@ -23,7 +23,8 @@ int main(int argc, char const *argv[])
     double start_cpu = (double)tp.tv_sec + (double)(tp.tv_usec * 1.e-6);
 
     // 需要计时的代码
-
+    
+    gettimeofday(&tp, NULL);
     ERROR_CHECK(cudaDeviceSynchronize());
     double elapsed_time_cpu = (double)tp.tv_sec + (double)(tp.tv_usec * 1.e-6) - start_cpu;
 

@@ -54,3 +54,19 @@ void setDevice()
         printf("Set GPU %d for computing.\n", device);
     }
 }
+
+/**
+ * @brief 预热核函数
+ */
+__global__ void warmupKernel()
+{
+    // DO NOTHING
+}
+
+/**
+ * @brief 预热核函数的封装函数
+ */
+void warmupKernelDo()
+{
+    warmupKernel<<<32, 32>>>();
+}
