@@ -111,7 +111,7 @@ __global__ void reduceUnrolling2(int *g_idata, int *g_odata, unsigned int size)
     unsigned int tid = threadIdx.x;
     unsigned int idx = blockIdx.x * blockDim.x * 2 + tid;
 
-    // 与之前不同，这里将两个数据库汇总到一个线程块中
+    // 与之前不同，这里将2个数据块汇总到一个线程块中
     int *idata = g_idata + blockIdx.x * blockDim.x * 2;
 
     if (idx + blockDim.x < size)
@@ -137,7 +137,7 @@ __global__ void reduceUnrolling4(int *g_idata, int *g_odata, unsigned int size)
     unsigned int tid = threadIdx.x;
     unsigned int idx = blockIdx.x * blockDim.x * 4 + tid;
 
-    // 与之前不同，这里将两个数据库汇总到一个线程块中
+    // 这里将4个数据块汇总到一个线程块中
     int *idata = g_idata + blockIdx.x * blockDim.x * 4;
 
     if (idx + blockDim.x * 3 < size)
@@ -169,7 +169,7 @@ __global__ void reduceUnrolling8(int *g_idata, int *g_odata, unsigned int size)
     unsigned int tid = threadIdx.x;
     unsigned int idx = blockIdx.x * blockDim.x * 8 + tid;
 
-    // 与之前不同，这里将两个数据库汇总到一个线程块中
+    // 这里将8个数据块汇总到一个线程块中
     int *idata = g_idata + blockIdx.x * blockDim.x * 8;
 
     if (idx + blockDim.x * 7 < size)
@@ -199,17 +199,177 @@ __global__ void reduceUnrolling8(int *g_idata, int *g_odata, unsigned int size)
         g_odata[blockIdx.x] = idata[0];
 }
 
+// 循环展开的交错匹配并行归约求和，汇聚8个数据块，并展开最后线程束
+__global__ void reduceUnrollWarps8(int *g_idata, int *g_odata, unsigned int size)
+{
+    unsigned int tid = threadIdx.x;
+    unsigned int idx = blockIdx.x * blockDim.x * 8 + tid;
+
+    int *idata = g_idata + blockIdx.x * blockDim.x * 8;
+
+    if (idx + blockDim.x * 7 < size)
+    {
+        int a1 = g_idata[idx];
+        int a2 = g_idata[idx + blockDim.x];
+        int a3 = g_idata[idx + blockDim.x * 2];
+        int a4 = g_idata[idx + blockDim.x * 3];
+        int a5 = g_idata[idx + blockDim.x * 4];
+        int a6 = g_idata[idx + blockDim.x * 5];
+        int a7 = g_idata[idx + blockDim.x * 6];
+        int a8 = g_idata[idx + blockDim.x * 7];
+        g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
+    }
+    __syncthreads();
+
+    for (int stride = blockDim.x / 2; stride > 32; stride >>= 1)
+    {
+        if (tid < stride)
+        {
+            idata[tid] += idata[tid + stride];
+        }
+        __syncthreads();
+    }
+
+    // 最后线程束展开
+    if (tid < 32)
+    {
+        volatile int *vmem = idata;
+        vmem[tid] += vmem[tid + 32];
+        vmem[tid] += vmem[tid + 16];
+        vmem[tid] += vmem[tid + 8];
+        vmem[tid] += vmem[tid + 4];
+        vmem[tid] += vmem[tid + 2];
+        vmem[tid] += vmem[tid + 1];
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 完全展开的归约
+__global__ void reduceCompleteUnrollWarps8(int *g_idata, int *g_odata, unsigned int size)
+{
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x * 8 + tid;
+
+    int *idata = g_idata + blockIdx.x * blockDim.x * 8;
+
+    if (idx + blockDim.x * 7 < size)
+    {
+        int a1 = g_idata[idx];
+        int a2 = g_idata[idx + blockDim.x];
+        int a3 = g_idata[idx + blockDim.x * 2];
+        int a4 = g_idata[idx + blockDim.x * 3];
+        int a5 = g_idata[idx + blockDim.x * 4];
+        int a6 = g_idata[idx + blockDim.x * 5];
+        int a7 = g_idata[idx + blockDim.x * 6];
+        int a8 = g_idata[idx + blockDim.x * 7];
+        g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
+    }
+    __syncthreads();
+
+    // 完全展开
+    if (blockDim.x >= 1024 && tid < 512)
+        idata[tid] += idata[tid + 512];
+    __syncthreads();
+
+    if (blockDim.x >= 512 && tid < 256)
+        idata[tid] += idata[tid + 256];
+    __syncthreads();
+
+    if (blockDim.x >= 256 && tid < 128)
+        idata[tid] += idata[tid + 128];
+    __syncthreads();
+
+    if (blockDim.x >= 128 && tid < 64)
+        idata[tid] += idata[tid + 64];
+    __syncthreads();
+
+    if (tid < 32)
+    {
+        volatile int *vmem = idata;
+        vmem[tid] += vmem[tid + 32];
+        vmem[tid] += vmem[tid + 16];
+        vmem[tid] += vmem[tid + 8];
+        vmem[tid] += vmem[tid + 4];
+        vmem[tid] += vmem[tid + 2];
+        vmem[tid] += vmem[tid + 1];
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 带模板参数的完全展开的归约
+template <unsigned int iBlockSize>
+__global__ void reduceCompleteUnroll(int *g_idata, int *g_odata, unsigned int size)
+{
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x * 8 + tid;
+
+    int *idata = g_idata + blockIdx.x * blockDim.x * 8;
+
+    if (idx + blockDim.x * 7 < size)
+    {
+        int a1 = g_idata[idx];
+        int a2 = g_idata[idx + blockDim.x];
+        int a3 = g_idata[idx + blockDim.x * 2];
+        int a4 = g_idata[idx + blockDim.x * 3];
+        int a5 = g_idata[idx + blockDim.x * 4];
+        int a6 = g_idata[idx + blockDim.x * 5];
+        int a7 = g_idata[idx + blockDim.x * 6];
+        int a8 = g_idata[idx + blockDim.x * 7];
+        g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
+    }
+    __syncthreads();
+
+    if (iBlockSize >= 1024 && tid < 512)
+        idata[tid] += idata[tid + 512];
+    __syncthreads();
+
+    if (iBlockSize >= 512 && tid < 256)
+        idata[tid] += idata[tid + 256];
+    __syncthreads();
+
+    if (iBlockSize >= 256 && tid < 128)
+        idata[tid] += idata[tid + 128];
+    __syncthreads();
+
+    if (iBlockSize >= 128 && tid < 64)
+        idata[tid] += idata[tid + 64];
+    __syncthreads();
+
+    if (tid < 32)
+    {
+        volatile int *vmem = idata;
+        vmem[tid] += vmem[tid + 32];
+        vmem[tid] += vmem[tid + 16];
+        vmem[tid] += vmem[tid + 8];
+        vmem[tid] += vmem[tid + 4];
+        vmem[tid] += vmem[tid + 2];
+        vmem[tid] += vmem[tid + 1];
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
 int main(int argc, char const *argv[])
 {
+    int blocksize = 512;
+
+    if (argc > 1)
+        blocksize = atoi(argv[1]);
+
     setDevice();
 
     int size = 1 << 24;
     printf("Array Size: %d\n", size);
 
-    int cpu_sum, gpu_sum;
-
-    dim3 block(512);
+    dim3 block(blocksize);
     dim3 grid((size + block.x - 1) / block.x);
+
+    int cpu_sum, gpu_sum;
 
     int *h_idata, *h_odata, *temp;
     h_idata = (int *)malloc(size * sizeof(int));
@@ -253,6 +413,7 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
     ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x * sizeof(int), cudaMemcpyDeviceToHost));
     ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
     for (int i = 0; i < grid.x; i++)
         gpu_sum += h_odata[i];
     printf("gpu neighbored\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
@@ -302,7 +463,7 @@ int main(int argc, char const *argv[])
     // 循环展开的交错匹配并行归约求和，汇聚4个数据块
     ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaEventRecord(start));
-    reduceUnrolling4<<<grid.x / 4, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的一半
+    reduceUnrolling4<<<grid.x / 4, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的1/4
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
@@ -316,7 +477,7 @@ int main(int argc, char const *argv[])
     // 循环展开的交错匹配并行归约求和，汇聚8个数据块
     ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaEventRecord(start));
-    reduceUnrolling8<<<grid.x / 8, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的一半
+    reduceUnrolling8<<<grid.x / 8, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的1/8
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
@@ -326,6 +487,65 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < grid.x / 8; i++)
         gpu_sum += h_odata[i];
     printf("gpu unrolling8\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 8, block.x);
+
+    // 循环展开的交错匹配并行归约求和，汇聚8个数据块，并展开最后线程束
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceUnrollWarps8<<<grid.x / 8, block>>>(d_idata, d_odata, size);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x / 8 * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x / 8; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu unrolWarps8\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 8, block.x);
+
+    // 完全展开的归约
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceCompleteUnrollWarps8<<<grid.x / 8, block>>>(d_idata, d_odata, size);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x / 8 * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x / 8; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu CmptUnroll8\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 8, block.x);
+
+    // 带模板参数的完全展开的归约
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    switch (blocksize)
+    {
+    case 1024:
+        reduceCompleteUnroll<1024><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+        break;
+    case 512:
+        reduceCompleteUnroll<512><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+        break;
+    case 256:
+        reduceCompleteUnroll<256><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+        break;
+    case 128:
+        reduceCompleteUnroll<128><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+        break;
+    case 64:
+        reduceCompleteUnroll<64><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+        break;
+    }
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x / 8 * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x / 8; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu CmptUnroll\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 8, block.x);
 
     ERROR_CHECK(cudaFree(d_idata));
     ERROR_CHECK(cudaFree(d_odata));
