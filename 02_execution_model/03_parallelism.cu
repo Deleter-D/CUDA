@@ -77,13 +77,21 @@ int main(int argc, char const *argv[])
     dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
 
     cudaEvent_t start, stop;
+    float elapsedTime;
     ERROR_CHECK(cudaEventCreate(&start));
     ERROR_CHECK(cudaEventCreate(&stop));
+
+    // 预热
+    ERROR_CHECK(cudaEventRecord(start));
+    warmupKernelDo();
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+
     ERROR_CHECK(cudaEventRecord(start));
     sumMatrixOnGPU2D<<<grid, block>>>(d_A, d_B, d_C, nx, ny);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
-    float elapsedTime;
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
     printf("sumMatrixOnGPU2D <<<(%d, %d), (%d, %d)>>> elapsed %g ms\n", grid.x, grid.y, block.x, block.y, elapsedTime);
 

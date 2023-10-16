@@ -4,6 +4,14 @@
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
+/*
+    使用ncu分析每个线程束上执行的指令数量
+    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics smsp__average_inst_executed_per_warp.ratio /path/to/out/04_reduction
+
+    使用ncu分析内存读取效率
+    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/04_reduction
+*/
+
 // C语言递归实现的归约求和
 int recursiveReduce(int *data, int const size)
 {
@@ -19,6 +27,7 @@ int recursiveReduce(int *data, int const size)
     return recursiveReduce(data, stride);
 }
 
+// 相邻匹配的并行归约求和
 __global__ void reduceNeighbored(int *g_idata, int *g_odata, unsigned int size)
 {
     int tid = threadIdx.x;
@@ -42,6 +51,150 @@ __global__ void reduceNeighbored(int *g_idata, int *g_odata, unsigned int size)
     }
 
     // 将当前block的结果写入全局内存
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 强制相邻线程工作的相邻匹配并行归约求和
+__global__ void reduceNeighboredLess(int *g_idata, int *g_odata, unsigned int size)
+{
+    unsigned tid = threadIdx.x;
+    unsigned idx = blockIdx.x * blockDim.x + tid;
+
+    int *idata = g_idata + blockIdx.x * blockDim.x;
+
+    if (idx >= size)
+        return;
+
+    for (int stride = 1; stride < blockDim.x; stride *= 2)
+    {
+        // 将tid转换为局部数组索引
+        int index = 2 * stride * tid;
+        if (index < blockDim.x)
+        {
+            idata[index] += idata[index + stride];
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 交错匹配的并行归约求和
+__global__ void reduceInterleaved(int *g_idata, int *g_odata, unsigned int size)
+{
+    unsigned int tid = threadIdx.x;
+    unsigned int idx = blockIdx.x * blockDim.x + tid;
+
+    int *idata = g_idata + blockIdx.x * blockDim.x;
+
+    if (idx >= size)
+        return;
+
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1)
+    {
+        if (tid < stride)
+        {
+            idata[tid] += idata[tid + stride];
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 循环展开的交错匹配并行归约求和，汇聚2个数据块
+__global__ void reduceUnrolling2(int *g_idata, int *g_odata, unsigned int size)
+{
+    unsigned int tid = threadIdx.x;
+    unsigned int idx = blockIdx.x * blockDim.x * 2 + tid;
+
+    // 与之前不同，这里将两个数据库汇总到一个线程块中
+    int *idata = g_idata + blockIdx.x * blockDim.x * 2;
+
+    if (idx + blockDim.x < size)
+        g_idata[idx] += g_idata[idx + blockDim.x];
+    __syncthreads();
+
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1)
+    {
+        if (tid < stride)
+        {
+            idata[tid] += idata[tid + stride];
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 循环展开的交错匹配并行归约求和，汇聚4个数据块
+__global__ void reduceUnrolling4(int *g_idata, int *g_odata, unsigned int size)
+{
+    unsigned int tid = threadIdx.x;
+    unsigned int idx = blockIdx.x * blockDim.x * 4 + tid;
+
+    // 与之前不同，这里将两个数据库汇总到一个线程块中
+    int *idata = g_idata + blockIdx.x * blockDim.x * 4;
+
+    if (idx + blockDim.x * 3 < size)
+    {
+        int a1 = g_idata[idx];
+        int a2 = g_idata[idx + blockDim.x];
+        int a3 = g_idata[idx + blockDim.x * 2];
+        int a4 = g_idata[idx + blockDim.x * 3];
+        g_idata[idx] = a1 + a2 + a3 + a4;
+    }
+    __syncthreads();
+
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1)
+    {
+        if (tid < stride)
+        {
+            idata[tid] += idata[tid + stride];
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
+// 循环展开的交错匹配并行归约求和，汇聚8个数据块
+__global__ void reduceUnrolling8(int *g_idata, int *g_odata, unsigned int size)
+{
+    unsigned int tid = threadIdx.x;
+    unsigned int idx = blockIdx.x * blockDim.x * 8 + tid;
+
+    // 与之前不同，这里将两个数据库汇总到一个线程块中
+    int *idata = g_idata + blockIdx.x * blockDim.x * 8;
+
+    if (idx + blockDim.x * 7 < size)
+    {
+        int a1 = g_idata[idx];
+        int a2 = g_idata[idx + blockDim.x];
+        int a3 = g_idata[idx + blockDim.x * 2];
+        int a4 = g_idata[idx + blockDim.x * 3];
+        int a5 = g_idata[idx + blockDim.x * 4];
+        int a6 = g_idata[idx + blockDim.x * 5];
+        int a7 = g_idata[idx + blockDim.x * 6];
+        int a8 = g_idata[idx + blockDim.x * 7];
+        g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
+    }
+    __syncthreads();
+
+    for (int stride = blockDim.x / 2; stride > 0; stride >>= 1)
+    {
+        if (tid < stride)
+        {
+            idata[tid] += idata[tid + stride];
+        }
+        __syncthreads();
+    }
+
     if (tid == 0)
         g_odata[blockIdx.x] = idata[0];
 }
@@ -70,13 +223,12 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaMalloc((void **)&d_idata, size * sizeof(int)));
     ERROR_CHECK(cudaMalloc((void **)&d_odata, size * sizeof(int)));
 
-    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
-
-    // 预热
     cudaEvent_t start, stop;
     float elapsedTime;
     ERROR_CHECK(cudaEventCreate(&start));
     ERROR_CHECK(cudaEventCreate(&stop));
+
+    // 预热
     ERROR_CHECK(cudaEventRecord(start));
     warmupKernelDo();
     ERROR_CHECK(cudaEventRecord(stop));
@@ -93,17 +245,87 @@ int main(int argc, char const *argv[])
     printf("cpu reduce\telapsed %g ms\tcpu_sum: %d\n", elapsed_time_cpu, cpu_sum);
 
     // 相邻配对的并行归约求和
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaEventRecord(start));
     reduceNeighbored<<<grid, block>>>(d_idata, d_odata, size);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
-
     ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x * sizeof(int), cudaMemcpyDeviceToHost));
     ERROR_CHECK(cudaDeviceSynchronize());
     for (int i = 0; i < grid.x; i++)
         gpu_sum += h_odata[i];
     printf("gpu neighbored\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
+
+    // 强制相邻线程工作的相邻匹配并行归约求和
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceNeighboredLess<<<grid, block>>>(d_idata, d_odata, size);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu neighboredL\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
+
+    // 交错匹配并行归约求和
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceInterleaved<<<grid, block>>>(d_idata, d_odata, size);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu interleaved\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
+
+    // 循环展开的交错匹配并行归约求和，汇聚2个数据块
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceUnrolling2<<<grid.x / 2, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的一半
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x / 2 * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x / 2; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu unrolling2\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 2, block.x);
+
+    // 循环展开的交错匹配并行归约求和，汇聚4个数据块
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceUnrolling4<<<grid.x / 4, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的一半
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x / 4 * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x / 4; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu unrolling4\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 4, block.x);
+
+    // 循环展开的交错匹配并行归约求和，汇聚8个数据块
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, size * sizeof(int), cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceUnrolling8<<<grid.x / 8, block>>>(d_idata, d_odata, size); // 注意grid数量变成了原来的一半
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x / 8 * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x / 8; i++)
+        gpu_sum += h_odata[i];
+    printf("gpu unrolling8\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x / 8, block.x);
 
     ERROR_CHECK(cudaFree(d_idata));
     ERROR_CHECK(cudaFree(d_odata));
@@ -112,7 +334,7 @@ int main(int argc, char const *argv[])
     free(h_odata);
     free(temp);
 
-    cudaDeviceReset();
+    ERROR_CHECK(cudaDeviceReset());
 
     if (cpu_sum == gpu_sum)
         printf("Result correct!\n");
