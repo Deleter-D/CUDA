@@ -384,7 +384,7 @@ int main(int argc, char const *argv[])
 
     int *d_idata, *d_odata;
     ERROR_CHECK(cudaMalloc((void **)&d_idata, size * sizeof(int)));
-    ERROR_CHECK(cudaMalloc((void **)&d_odata, size * sizeof(int)));
+    ERROR_CHECK(cudaMalloc((void **)&d_odata, grid.x * sizeof(int)));
 
     cudaEvent_t start, stop;
     float elapsedTime;
