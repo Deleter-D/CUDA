@@ -26,7 +26,7 @@ cudaError_t ErrorCheck(cudaError_t error, const char *filename, int lineNumber)
 }
 
 // 初始化设备
-void setDevice()
+void setDevice(int device = 0)
 {
     int deviceCount = 0;
     cudaError_t error = ErrorCheck(cudaGetDeviceCount(&deviceCount), __FILE__, __LINE__); // 获取设备数量
@@ -42,7 +42,6 @@ void setDevice()
         printf("There %s %d device%s in your computer.\n", (deviceCount > 1 ? "are" : "is"), deviceCount, (deviceCount > 1 ? "s" : ""));
     }
 
-    int device = 0;
     error = ErrorCheck(cudaSetDevice(device), __FILE__, __LINE__); // 设置执行设备代码的目标设备
     if (error != cudaSuccess)
     {
