@@ -13,9 +13,7 @@
                 "-arch",
                 "sm_89",
                 "-rdc",
-                "true",
-                // "-lcudadevrt",
-                // "-lcudart",
+                "true"
             ],
             "options": {
                 "cwd": "${fileDirname}"

@@ -9,7 +9,7 @@ int recursiveReduce(int *data, int const size)
 {
     if (size == 1)
         return data[0];
-    int const stride = size / 2;
+    int const stride = size >> 1;
 
     for (int i = 0; i < stride; i++)
     {
@@ -49,9 +49,10 @@ __global__ void gpuRecursiveReduce(int *g_idata, int *g_odata, unsigned int size
     __syncthreads();
 }
 
+// 去除同步的嵌套归约
 __global__ void gpuRecursiveReduceNosync(int *g_idata, int *g_odata, unsigned int size)
 {
-    unsigned tid = threadIdx.x;
+    unsigned int tid = threadIdx.x;
 
     int *idata = g_idata + blockIdx.x * blockDim.x;
     int *odata = &g_odata[blockIdx.x];
@@ -73,10 +74,53 @@ __global__ void gpuRecursiveReduceNosync(int *g_idata, int *g_odata, unsigned in
     }
 }
 
+// 优化资源利用后的嵌套归约
+__global__ void gpuRecursiveReduce2(int *g_idata, int *g_odata, int stride, int const dim)
+{
+    int *idata = g_idata + blockIdx.x * dim;
+
+    if (stride == 1 && threadIdx.x == 0)
+    {
+        g_odata[blockIdx.x] = idata[0] + idata[1];
+        return;
+    }
+
+    idata[threadIdx.x] += idata[threadIdx.x + stride];
+
+    if (threadIdx.x == 0 && blockIdx.x == 0)
+    {
+        gpuRecursiveReduce2<<<gridDim.x, stride / 2, 0, cudaStreamTailLaunch>>>(g_idata, g_odata, stride / 2, dim);
+    }
+}
+
+// 相邻匹配的并行归约求和
+__global__ void reduceNeighbored(int *g_idata, int *g_odata, unsigned int size)
+{
+    int tid = threadIdx.x;
+    int idx = blockIdx.x * blockDim.x + tid;
+
+    int *idata = g_idata + blockIdx.x * blockDim.x;
+
+    if (idx >= size)
+        return;
+
+    for (int stride = 1; stride < blockDim.x; stride *= 2)
+    {
+        if ((tid % (2 * stride)) == 0)
+        {
+            idata[tid] += idata[tid + stride];
+        }
+        __syncthreads();
+    }
+
+    if (tid == 0)
+        g_odata[blockIdx.x] = idata[0];
+}
+
 int main(int argc, char const *argv[])
 {
-    int nblock = 1;
-    int nthread = 1024;
+    int nblock = 1024;
+    int nthread = 512;
 
     if (argc > 1)
         nblock = atoi(argv[1]);
@@ -130,7 +174,7 @@ int main(int argc, char const *argv[])
     // 嵌套归约
     ERROR_CHECK(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaEventRecord(start));
-    gpuRecursiveReduce<<<grid, block>>>(d_idata, d_odata, size);
+    gpuRecursiveReduce<<<grid, block>>>(d_idata, d_odata, block.x);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
@@ -148,7 +192,7 @@ int main(int argc, char const *argv[])
     // 去除同步的嵌套归约
     ERROR_CHECK(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaEventRecord(start));
-    gpuRecursiveReduceNosync<<<grid, block>>>(d_idata, d_odata, size);
+    gpuRecursiveReduceNosync<<<grid, block>>>(d_idata, d_odata, block.x);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
@@ -160,6 +204,38 @@ int main(int argc, char const *argv[])
         gpu_sum += h_odata[i];
     }
     printf("gpu nestedNosyn\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
+
+    // 优化资源利用后的嵌套归约
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    gpuRecursiveReduce2<<<grid, block>>>(d_idata, d_odata, block.x / 2, block.x);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x; i++)
+    {
+        gpu_sum += h_odata[i];
+    }
+    printf("gpu nested2\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
+
+    // 相邻匹配的并行归约求和
+    ERROR_CHECK(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
+    ERROR_CHECK(cudaEventRecord(start));
+    reduceNeighbored<<<grid, block>>>(d_idata, d_odata, size);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    ERROR_CHECK(cudaMemcpy(h_odata, d_odata, grid.x * sizeof(int), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaDeviceSynchronize());
+    gpu_sum = 0;
+    for (int i = 0; i < grid.x; i++)
+    {
+        gpu_sum += h_odata[i];
+    }
+    printf("gpu neighbored\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
 
     ERROR_CHECK(cudaFree(d_idata));
     ERROR_CHECK(cudaFree(d_odata));
