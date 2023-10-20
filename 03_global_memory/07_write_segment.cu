@@ -3,25 +3,18 @@
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
-/*
-    使用如下命令分析全局加载效率和全局加载事务
-    sudo ncu --target-processes all -k sumArraysReadOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum /path/out/06_read_segment 0
-    sudo ncu --target-processes all -k sumArraysReadOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum /path/out/06_read_segment 11
-    sudo ncu --target-processes all -k sumArraysReadOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum /path/out/06_read_segment 128
-*/
-
 void sumArraysHost(float *A, float *B, float *C, const int size, int offset)
 {
-    for (int i = 0, j = offset; i < size; i++, j++)
-        C[i] = A[j] + B[j];
+    for (int i = 0, j = offset; j < size; i++, j++)
+        C[j] = A[i] + B[i];
 }
 
-__global__ void sumArraysReadOffset(float *A, float *B, float *C, const int size, int offset)
+__global__ void sumArraysWriteOffset(float *A, float *B, float *C, const int size, int offset)
 {
     unsigned tid = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned j = tid + offset;
-    if (tid < size)
-        C[tid] = A[j] + B[j];
+    if (j < size)
+        C[j] = A[tid] + B[tid];
 }
 
 int main(int argc, char const *argv[])
@@ -71,16 +64,16 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
 
     ERROR_CHECK(cudaEventRecord(start));
-    sumArraysReadOffset<<<grid, block>>>(d_A, d_B, d_C, size, offset);
+    sumArraysWriteOffset<<<grid, block>>>(d_A, d_B, d_C, size, offset);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
-    printf("readOffset<<<%d, %d>>>\toffset %4d\telapsed %f ms\n", grid.x, block.x, offset, elapsedTime);
+    printf("writeOffset<<<%d, %d>>>\toffset %4d\telapsed %f ms\n", grid.x, block.x, offset, elapsedTime);
 
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     ERROR_CHECK(cudaDeviceSynchronize());
 
-    checkResult<float>(hostRef, gpuRef, size - offset);
+    checkResult<float>(hostRef, gpuRef, size);
 
     ERROR_CHECK(cudaFree(d_A));
     ERROR_CHECK(cudaFree(d_B));

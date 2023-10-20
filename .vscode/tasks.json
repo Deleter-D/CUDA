@@ -12,8 +12,9 @@
                 "${workspaceFolder}/out/${fileBasenameNoExtension}",
                 "-arch",
                 "sm_89",
-                "-rdc",
-                "true"
+                "-O3",
+                // "-rdc",
+                // "true",
             ],
             "options": {
                 "cwd": "${fileDirname}"
