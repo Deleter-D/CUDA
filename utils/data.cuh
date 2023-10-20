@@ -39,12 +39,25 @@ void checkResult(T *hostRef, T *gpuRef, const int N, double rtol = 1e-5, double 
             different_indexes.push_back(i);
         }
     }
-    if (different_indexes.size() != 0)
+    int dismatchCount = different_indexes.size();
+    if (dismatchCount != 0)
     {
         printf("Arrays do not match!\n\tindexes: ");
-        for (int i = 0; i < different_indexes.size(); i++)
-            printf("%d ", different_indexes[i]);
-        printf("\n");
+        if (dismatchCount < 10)
+        {
+            for (int i = 0; i < dismatchCount; i++)
+                printf("%d ", different_indexes[i]);
+            printf("\n");
+        }
+        else
+        {
+            for (int i = 0; i < 7; i++)
+                printf("%d ", different_indexes[i]);
+            printf("... ");
+            for (int i = dismatchCount - 3; i < dismatchCount; i++)
+                printf("%d ", different_indexes[i]);
+            printf("\ttotal: %d\n", dismatchCount);
+        }
     }
     else
     {

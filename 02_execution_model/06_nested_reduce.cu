@@ -75,8 +75,8 @@ __global__ void gpuRecursiveReduceNosync(int *g_idata, int *g_odata, unsigned in
 
 int main(int argc, char const *argv[])
 {
-    int nblock = 2048;
-    int nthread = 512;
+    int nblock = 1;
+    int nthread = 1024;
 
     if (argc > 1)
         nblock = atoi(argv[1]);
@@ -142,6 +142,8 @@ int main(int argc, char const *argv[])
         gpu_sum += h_odata[i];
     }
     printf("gpu nested\telapsed %g ms\tgpu_sum: %d\t<<<%d, %d>>>\n", elapsedTime, gpu_sum, grid.x, block.x);
+
+    memset(h_odata, 0, grid.x * sizeof(int));
 
     // 去除同步的嵌套归约
     ERROR_CHECK(cudaMemcpy(d_idata, h_idata, bytes, cudaMemcpyHostToDevice));
