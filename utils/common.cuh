@@ -67,5 +67,5 @@ __global__ void warmupKernel()
  */
 void warmupKernelDo()
 {
-    warmupKernel<<<32, 32>>>();
+    warmupKernel<<<32768, 512>>>();
 }
