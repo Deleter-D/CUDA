@@ -9,7 +9,7 @@
  * @param size 数组长度
  */
 template <typename T>
-void initializaData(T *ptr, int size)
+void initializeData(T *ptr, int size)
 {
     for (int i = 0; i < size; i++)
     {

@@ -51,8 +51,8 @@ int main(int argc, char const *argv[])
     hostRef = (float *)malloc(bytes);
     gpuRef = (float *)malloc(bytes);
 
-    initializaData<float>(h_A, size);
-    initializaData<float>(h_B, size);
+    initializeData<float>(h_A, size);
+    initializeData<float>(h_B, size);
     memset(hostRef, 0, bytes);
     memset(gpuRef, 0, bytes);
 

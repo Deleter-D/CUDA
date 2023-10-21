@@ -18,7 +18,7 @@ int main(int argc, char const *argv[])
     float *h_a;
     ERROR_CHECK(cudaMallocHost((void **)&h_a, bytes));
 
-    initializaData<float>(h_a, size);
+    initializeData<float>(h_a, size);
 
     float *d_a;
     ERROR_CHECK(cudaMalloc((void **)&d_a, bytes));

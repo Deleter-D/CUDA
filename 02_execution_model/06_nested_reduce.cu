@@ -144,7 +144,7 @@ int main(int argc, char const *argv[])
     h_odata = (int *)malloc(grid.x * sizeof(int));
     temp = (int *)malloc(bytes);
 
-    initializaData<int>(h_idata, size);
+    initializeData<int>(h_idata, size);
     memcpy(temp, h_idata, bytes);
 
     int *d_idata, *d_odata;

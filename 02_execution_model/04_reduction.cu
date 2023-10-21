@@ -379,7 +379,7 @@ int main(int argc, char const *argv[])
     h_odata = (int *)malloc(grid.x * sizeof(int));
     temp = (int *)malloc(size * sizeof(int)); // 用于CPU端求和
 
-    initializaData<int>(h_idata, size);
+    initializeData<int>(h_idata, size);
     memcpy(temp, h_idata, size * sizeof(int));
 
     int *d_idata, *d_odata;

@@ -62,8 +62,8 @@ int main(int argc, char const *argv[])
     h_B = (float *)malloc(nx * ny * sizeof(float));
     h_C = (float *)malloc(nx * ny * sizeof(float));
 
-    initializaData<float>(h_A, nx * ny);
-    initializaData<float>(h_B, nx * ny);
+    initializeData<float>(h_A, nx * ny);
+    initializeData<float>(h_B, nx * ny);
 
     float *d_A, *d_B, *d_C;
     ERROR_CHECK(cudaMalloc((void **)&d_A, nx * ny * sizeof(float)));

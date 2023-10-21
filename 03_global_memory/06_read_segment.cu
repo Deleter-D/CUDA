@@ -45,8 +45,8 @@ int main(int argc, char const *argv[])
     hostRef = (float *)malloc(bytes);
     gpuRef = (float *)malloc(bytes);
 
-    initializaData<float>(h_A, size);
-    initializaData<float>(h_B, size);
+    initializeData<float>(h_A, size);
+    initializeData<float>(h_B, size);
 
     sumArraysHost(h_A, h_B, hostRef, size, offset);
 

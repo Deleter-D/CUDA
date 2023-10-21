@@ -54,8 +54,8 @@ int main(int argc, char const *argv[])
     gpuRef = (float *)malloc(nBytes);
 
     // 初始化主机端数据
-    initializaData<float>(h_A, nxy);
-    initializaData<float>(h_B, nxy);
+    initializeData<float>(h_A, nxy);
+    initializeData<float>(h_B, nxy);
     memset(hostRef, 0, nBytes);
     memset(gpuRef, 0, nBytes);
 
