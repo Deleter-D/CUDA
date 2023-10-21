@@ -12,9 +12,12 @@
                 "${workspaceFolder}/out/${fileBasenameNoExtension}",
                 "-arch",
                 "sm_89",
-                "-O3",
+                // 下面两条强制生成可重定向代码，允许核函数嵌套
                 // "-rdc",
                 // "true",
+                // 下面两条禁用一级缓存
+                // "-Xptxas",
+                // "-dlcm=cg"
             ],
             "options": {
                 "cwd": "${fileDirname}"

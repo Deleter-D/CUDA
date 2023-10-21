@@ -12,12 +12,14 @@
 
 #define LEN 1 << 20
 
+// SoA排布方式
 struct innerArray
 {
     float x[LEN];
     float y[LEN];
 };
 
+// 主机端操作
 void testInnerArrayHost(innerArray *data, innerArray *result, const int size)
 {
     for (int i = 0; i < size; i++)
@@ -27,6 +29,7 @@ void testInnerArrayHost(innerArray *data, innerArray *result, const int size)
     }
 }
 
+// 相同操作的核函数
 __global__ void testInnerArray(innerArray *data, innerArray *result, const int size)
 {
     unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -103,6 +106,7 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventCreate(&start));
     ERROR_CHECK(cudaEventCreate(&stop));
 
+    // 预热
     ERROR_CHECK(cudaEventRecord(start));
     warmupKernelDo();
     ERROR_CHECK(cudaEventRecord(stop));

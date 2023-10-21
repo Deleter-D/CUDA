@@ -12,12 +12,14 @@
 
 #define LEN 1 << 20
 
+// AoS排布方式
 struct innerStruct
 {
     float x;
     float y;
 };
 
+// 主机端操作
 void testInnerStructHost(innerStruct *data, innerStruct *result, const int size)
 {
     for (int i = 0; i < size; i++)
@@ -29,6 +31,7 @@ void testInnerStructHost(innerStruct *data, innerStruct *result, const int size)
     }
 }
 
+// 相同操作的核函数
 __global__ void testInnerStruct(innerStruct *data, innerStruct *result, const int size)
 {
     unsigned int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -99,6 +102,7 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventCreate(&start));
     ERROR_CHECK(cudaEventCreate(&stop));
 
+    // 预热
     ERROR_CHECK(cudaEventRecord(start));
     warmupKernelDo();
     ERROR_CHECK(cudaEventRecord(stop));
