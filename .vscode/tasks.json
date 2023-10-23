@@ -10,7 +10,7 @@
                 "-O3",
                 "${file}",
                 "-o",
-                "${workspaceFolder}/out/${fileBasenameNoExtension}",
+                "${workspaceFolder}/executable/${fileBasenameNoExtension}",
                 "-arch",
                 "sm_89",
                 // 下面两条强制生成可重定向代码，允许核函数嵌套

@@ -1,0 +1,7 @@
+add_executable(01_compute_capability 01_compute_capability.cu)
+set_target_properties(01_compute_capability PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+install(TARGETS 01_compute_capability DESTINATION 00_CUDA_official_documentation)
+
+add_executable(02_example_vec_add 02_example_vec_add.cu)
+set_target_properties(02_example_vec_add PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+install(TARGETS 02_example_vec_add DESTINATION 00_CUDA_official_documentation)
