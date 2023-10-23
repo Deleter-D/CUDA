@@ -12,7 +12,7 @@
 git clone https://github.com/Deleter-D/CUDA.git
 ```
 
-如果你配置了SSH，则可以用以下命令代替
+如果你配置了SSH，则可以用以下命令代替。
 
 ```sh
 git clone git@github.com:Deleter-D/CUDA.git
@@ -20,34 +20,34 @@ git clone git@github.com:Deleter-D/CUDA.git
 
 ---
 
-使用CMake构建
+使用CMake构建。
 
 ```sh
 cd build
 cmake ..
 ```
-> 请确保你的CMake版本大于等于3.17
+> 请确保你的CMake版本大于等于3.17。
 
 ---
 
-构建完成后，使用make命令编译并安装
+构建完成后，使用make命令编译并安装。
 
 ```sh
 make
 make install
 ```
 
-> 你可以在make过程中使用`make -j32`命令开启多线程
+> 你可以在make过程中使用`make -j32`命令开启多线程。
 
 ---
 
-安装完成后就可以在根目录的`executable`目录下看到所有可执行文件
+安装完成后就可以在根目录的`executable`目录下看到所有可执行文件。
 
 ```sh
 cd ../executable
 ```
 
-下面是运行其中一个可执行文件的例子
+下面是运行其中一个可执行文件的例子。
 
 ```sh
 ./01_programming_model/01_hello_world
