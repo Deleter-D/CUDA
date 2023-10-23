@@ -39,7 +39,13 @@ int main(int argc, char const *argv[])
     int nx, ny;
     nx = ny = 1 << 12;
     int bytes = nx * ny * sizeof(float);
-    printf("Matrix size: %d x %d\tTotal: %d\n", nx, ny, nx * ny);
+    printf("Matrix size: %d x %d\tTotal: %d\n\n", nx, ny, nx * ny);
+
+    cudaEvent_t start, stop;
+    float elapsedTime;
+    ERROR_CHECK(cudaEventCreate(&start));
+    ERROR_CHECK(cudaEventCreate(&stop));
+    printf("tasks\t\ttime\n");
 
     float *A, *B, *hostRef, *gpuRef;
     ERROR_CHECK(cudaMallocManaged((void **)&A, bytes));
@@ -47,17 +53,23 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaMallocManaged((void **)&hostRef, bytes));
     ERROR_CHECK(cudaMallocManaged((void **)&gpuRef, bytes));
 
+    ERROR_CHECK(cudaEventRecord(start));
     initializeData<float>(A, nx * ny);
     initializeData<float>(B, nx * ny);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("initData\t%f ms\n", elapsedTime);
+
     memset(hostRef, 0, bytes);
     memset(gpuRef, 0, bytes);
 
+    ERROR_CHECK(cudaEventRecord(start));
     sumMatrixOnHost(A, B, hostRef, nx, ny);
-
-    cudaEvent_t start, stop;
-    float elapsedTime;
-    ERROR_CHECK(cudaEventCreate(&start));
-    ERROR_CHECK(cudaEventCreate(&stop));
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("cpuSum\t\t%f ms\n", elapsedTime);
 
     dim3 block(32, 32);
     dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);

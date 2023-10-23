@@ -41,31 +41,48 @@ int main(int argc, char const *argv[])
     int bytes = nx * ny * sizeof(float);
     printf("Matrix size: %d x %d\tTotal: %d\n", nx, ny, nx * ny);
 
+    cudaEvent_t start, stop;
+    float elapsedTime;
+    ERROR_CHECK(cudaEventCreate(&start));
+    ERROR_CHECK(cudaEventCreate(&stop));
+    printf("tasks\t\ttime\n");
+
     float *h_A, *h_B, *hostRef, *gpuRef;
     h_A = (float *)malloc(bytes);
     h_B = (float *)malloc(bytes);
     hostRef = (float *)malloc(bytes);
     gpuRef = (float *)malloc(bytes);
 
+    ERROR_CHECK(cudaEventRecord(start));
     initializeData<float>(h_A, nx * ny);
     initializeData<float>(h_B, nx * ny);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("initData\t%f ms\n", elapsedTime);
+
     memset(hostRef, 0, bytes);
     memset(gpuRef, 0, bytes);
+
+    ERROR_CHECK(cudaEventRecord(start));
+    sumMatrixOnHost(h_A, h_B, hostRef, nx, ny);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("cpuSum\t\t%f ms\n", elapsedTime);
 
     float *d_A, *d_B, *d_C;
     ERROR_CHECK(cudaMalloc((void **)&d_A, bytes));
     ERROR_CHECK(cudaMalloc((void **)&d_B, bytes));
     ERROR_CHECK(cudaMalloc((void **)&d_C, bytes));
 
+    ERROR_CHECK(cudaEventRecord(start));
     ERROR_CHECK(cudaMemcpy(d_A, h_A, bytes, cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaMemcpy(d_B, h_B, bytes, cudaMemcpyHostToDevice));
-
-    sumMatrixOnHost(h_A, h_B, hostRef, nx, ny);
-
-    cudaEvent_t start, stop;
-    float elapsedTime;
-    ERROR_CHECK(cudaEventCreate(&start));
-    ERROR_CHECK(cudaEventCreate(&stop));
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("memcpyHtD\t%f ms\n", elapsedTime);
 
     dim3 block(32, 32);
     dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
@@ -87,7 +104,13 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
     printf("sum matrix manual<<<(%d, %d), (%d, %d)>>> elapsed %f ms\n", grid.x, grid.y, block.x, block.y, elapsedTime);
 
+    ERROR_CHECK(cudaEventRecord(start));
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
+    printf("memcpyDtH\t%f ms\n", elapsedTime);
+
     ERROR_CHECK(cudaDeviceSynchronize());
 
     checkResult<float>(hostRef, gpuRef, nx * ny);
