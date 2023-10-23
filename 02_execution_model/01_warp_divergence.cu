@@ -88,13 +88,13 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventCreate(&stop));
     float elapsed_time;
 
+    // 预热
     ERROR_CHECK(cudaEventRecord(start));
     cudaEventQuery(start);
-    warmingup<<<grid, block>>>(d_C);
+    mathKernel2<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsed_time, start, stop));
-    printf("warmingup<<<%d, %d>>> elapsed %g ms\n", grid.x, block.x, elapsed_time);
 
     ERROR_CHECK(cudaEventRecord(start));
     mathKernel1<<<grid, block>>>(d_C);

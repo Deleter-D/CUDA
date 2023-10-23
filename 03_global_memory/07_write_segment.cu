@@ -28,7 +28,7 @@ int main(int argc, char const *argv[])
 {
     setDevice();
 
-    int size = 1 << 20;
+    int size = 1 << 22;
     printf("Array size: %d\n", size);
     size_t bytes = size * sizeof(float);
 
@@ -65,7 +65,7 @@ int main(int argc, char const *argv[])
 
     // 预热
     ERROR_CHECK(cudaEventRecord(start));
-    warmupKernelDo();
+    sumArraysWriteOffset<<<grid, block>>>(d_A, d_B, d_C, size, offset);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));

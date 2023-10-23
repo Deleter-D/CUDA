@@ -93,6 +93,36 @@ __global__ void transposeUnroll4Col(float *out, float *in, const int nx, const i
     }
 }
 
+// 按行读取，按列存储的对角转置
+__global__ void transposeDiagonalRow(float *out, float *in, const int nx, const int ny)
+{
+    // 此处的blockIdx.x和blockIdx.y为对角坐标
+    // 转换后的blk_x和blk_y是其对应的笛卡尔坐标
+    unsigned int blk_x = (blockIdx.x + blockIdx.y) % gridDim.x;
+    unsigned int blk_y = blockIdx.x;
+
+    unsigned int ix = blockDim.x * blk_x + threadIdx.x;
+    unsigned int iy = blockDim.y * blk_y + threadIdx.y;
+
+    if (ix < nx && iy < ny)
+        out[ix * ny + iy] = in[iy * nx + ix];
+}
+
+// 按列读取，按行存储的对角转置
+__global__ void transposeDiagonalCol(float *out, float *in, const int nx, const int ny)
+{
+    // 此处的blockIdx.x和blockIdx.y为对角坐标
+    // 转换后的blk_x和blk_y是其对应的笛卡尔坐标
+    unsigned int blk_x = (blockIdx.x + blockIdx.y) % gridDim.x;
+    unsigned int blk_y = blockIdx.x;
+
+    unsigned int ix = blockDim.x * blk_x + threadIdx.x;
+    unsigned int iy = blockDim.y * blk_y + threadIdx.y;
+
+    if (ix < nx && iy < ny)
+        out[iy * nx + ix] = in[ix * ny + iy];
+}
+
 int main(int argc, char const *argv[])
 {
     setDevice();
@@ -137,13 +167,6 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventCreate(&start));
     ERROR_CHECK(cudaEventCreate(&stop));
 
-    // 预热
-    ERROR_CHECK(cudaEventRecord(start));
-    warmupKernelDo();
-    ERROR_CHECK(cudaEventRecord(stop));
-    ERROR_CHECK(cudaEventSynchronize(stop));
-    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
-
     // 核函数指针与描述
     void (*kernel)(float *, float *, int, int);
     char *kernelName;
@@ -174,7 +197,22 @@ int main(int argc, char const *argv[])
         kernel = &transposeUnroll4Col;
         kernelName = "Unroll4Col";
         break;
+    case 6:
+        kernel = &transposeDiagonalRow;
+        kernelName = "DiagonalRow";
+        break;
+    case 7:
+        kernel = &transposeDiagonalCol;
+        kernelName = "DiagonalCol";
+        break;
     }
+
+    // 预热
+    ERROR_CHECK(cudaEventRecord(start));
+    copyRow<<<grid, block>>>(d_C, d_A, nx, ny);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
 
     // 执行核函数
     ERROR_CHECK(cudaEventRecord(start));
@@ -182,10 +220,6 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
-
-    // 获取理论带宽
-    cudaDeviceProp prop;
-    ERROR_CHECK(cudaGetDeviceProperties(&prop, 0));
 
     // 计算有效带宽
     float bandWidth = (2 * nx * ny * sizeof(float) * 1.0E-9) / (elapsedTime * 1.0E-3);

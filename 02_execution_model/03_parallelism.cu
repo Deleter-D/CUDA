@@ -83,7 +83,7 @@ int main(int argc, char const *argv[])
 
     // 预热
     ERROR_CHECK(cudaEventRecord(start));
-    warmupKernelDo();
+    sumMatrixOnGPU2D<<<grid, block>>>(d_A, d_B, d_C, nx, ny);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));

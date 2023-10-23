@@ -106,19 +106,19 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventCreate(&start));
     ERROR_CHECK(cudaEventCreate(&stop));
 
-    // 预热
-    ERROR_CHECK(cudaEventRecord(start));
-    warmupKernelDo();
-    ERROR_CHECK(cudaEventRecord(stop));
-    ERROR_CHECK(cudaEventSynchronize(stop));
-    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
-
     int blocksize = 128;
     if (argc > 1)
         blocksize = atoi(argv[1]);
 
     dim3 block(blocksize);
     dim3 grid((size + block.x - 1) / block.x);
+
+    // 预热
+    ERROR_CHECK(cudaEventRecord(start));
+    testInnerArray<<<grid, block>>>(d_A, d_C, size);
+    ERROR_CHECK(cudaEventRecord(stop));
+    ERROR_CHECK(cudaEventSynchronize(stop));
+    ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));
 
     ERROR_CHECK(cudaMemcpy(d_A, h_A, bytes, cudaMemcpyHostToDevice));
     ERROR_CHECK(cudaEventRecord(start));
