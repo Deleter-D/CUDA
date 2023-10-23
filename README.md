@@ -1,53 +1,53 @@
-# 项目简介
+# Project Introduction
 
-本仓库大部分代码来自《CUDA C编程：权威指南》一书，同时加入了一些自己封装的工具类。
+The majority of the code in this repository is derived from the book "CUDA Programming: A Developer's Guide", with the addition of some custom utility classes.
 
-本项目利用CMake构建，具体编译安装过程如下。
+This project is built using CMake. The specific compilation and installation process is outlined below.
 
-# 安装步骤
+# Installation Steps
 
-克隆本仓库到本地
+Clone this repository to your local machine
 
 ```sh
 git clone https://github.com/Deleter-D/CUDA.git
 ```
 
-如果你配置了SSH，则可以用以下命令代替
+If you have SSH configured, you can use the following command instead
 
 ```sh
 git clone git@github.com:Deleter-D/CUDA.git
 ```
 
-___
+---
 
-使用CMake构建
+Use CMake to build
 
 ```sh
 cd build
 cmake ..
 ```
-> 请确保你的CMake版本大于等于3.17
+
+> Please ensure that your CMake version is greater than or equal to 3.17
 
 ---
 
-构建完成后，使用make命令编译并安装
+Once the build is complete, use the make command to compile and install
 
 ```sh
 make
 make install
 ```
 
-> 你可以在make过程中使用`make -j32`命令开启多线程
+> You can use the make -j32 command during the make process to enable multithreading
 
 ---
 
-安装完成后就可以在根目录的`executable`目录下看到所有可执行文件
+After installation is complete, you can find all executable files in the executable directory at the root
 
 ```sh
 cd ../executable
 ```
-
-下面是运行其中一个可执行文件的例子
+Below is an example of running one of the executable files
 
 ```sh
 ./01_programming_model/01_hello_world
