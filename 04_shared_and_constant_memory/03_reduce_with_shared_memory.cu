@@ -6,7 +6,7 @@
 
 /*
     使用如下命令分析全局内存加载和存储事务
-    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/to/03_reduce_with_shared_memor
+    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/to/03_reduce_with_shared_memory
 */
 
 #define DIM 128
