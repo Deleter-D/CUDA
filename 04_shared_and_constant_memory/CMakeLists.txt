@@ -1,3 +1,7 @@
 add_executable(01_square_shared_memory 01_square_shared_memory.cu)
 set_target_properties(01_square_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
 install(TARGETS 01_square_shared_memory DESTINATION 04_shared_and_constant_memory)
+
+add_executable(02_rectangle_shared_memory 02_rectangle_shared_memory.cu)
+set_target_properties(02_rectangle_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+install(TARGETS 02_rectangle_shared_memory DESTINATION 04_shared_and_constant_memory)

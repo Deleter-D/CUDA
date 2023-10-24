@@ -5,13 +5,13 @@
 
 /*
     使用如下命令分析存储体冲突
-    sudo ncu --target-processes all -k regex:"write" --metrics l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum /path/to/01_square_shared_memory
+    sudo ncu --target-processes all -k regex:"write" --metrics l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum /path/to/02_rectangle_shared_memory
 */
 
 #define BDIMX 32
-#define BDIMY 32
+#define BDIMY 16
 
-#define PAD 1
+#define PAD 2
 
 // 按行写入，按行读取
 __global__ void writeRowReadRow(int *out)
@@ -49,11 +49,15 @@ __global__ void writeColReadRow(int *out)
 
     unsigned int idx = threadIdx.y * blockDim.x + threadIdx.x;
 
+    // 输出的全局内存中的数据元素是经过转置的，所以需要计算转置矩阵中的新坐标
+    unsigned int row = idx / blockDim.y;
+    unsigned int col = idx % blockDim.y;
+
     tile[threadIdx.x][threadIdx.y] = idx;
 
     __syncthreads();
 
-    out[idx] = tile[threadIdx.y][threadIdx.x];
+    out[idx] = tile[row][col];
 }
 
 // 按行写入，按列读取
@@ -63,11 +67,14 @@ __global__ void writeRowReadCol(int *out)
 
     unsigned int idx = threadIdx.y * blockDim.x + threadIdx.x;
 
+    unsigned int row = idx / blockDim.y;
+    unsigned int col = idx % blockDim.y;
+
     tile[threadIdx.y][threadIdx.x] = idx;
 
     __syncthreads();
 
-    out[idx] = tile[threadIdx.x][threadIdx.y];
+    out[idx] = tile[col][row];
 }
 
 // 按行写入，按列读取，使用动态共享内存
@@ -75,14 +82,19 @@ __global__ void writeRowReadColDynamic(int *out)
 {
     extern __shared__ int tile[];
 
-    unsigned int row_idx = threadIdx.y * blockDim.x + threadIdx.x;
-    unsigned int col_idx = threadIdx.x * blockDim.y + threadIdx.y;
+    unsigned int idx = threadIdx.y * blockDim.x + threadIdx.x;
 
-    tile[row_idx] = row_idx;
+    unsigned int row = idx / blockDim.y;
+    unsigned int col = idx % blockDim.y;
+
+    // 将输出矩阵二维索引转换为一维共享内存索引
+    unsigned int col_idx = col * blockDim.x + row;
+
+    tile[idx] = idx;
 
     __syncthreads();
 
-    out[row_idx] = tile[col_idx];
+    out[idx] = tile[col_idx];
 }
 
 // 按行写入，按列读取，填充静态共享内存
@@ -92,11 +104,14 @@ __global__ void writeRowReadColPadding(int *out)
 
     unsigned int idx = threadIdx.y * blockDim.x + threadIdx.x;
 
+    unsigned int row = idx / blockDim.y;
+    unsigned int col = idx % blockDim.y;
+
     tile[threadIdx.y][threadIdx.x] = idx;
 
     __syncthreads();
 
-    out[idx] = tile[threadIdx.x][threadIdx.y];
+    out[idx] = tile[col][row];
 }
 
 // 按行写入，按列读取，填充动态共享内存
@@ -104,10 +119,14 @@ __global__ void writeRowReadColDynPad(int *out)
 {
     extern __shared__ int tile[];
 
-    unsigned int row_idx = threadIdx.y * (blockDim.x + PAD) + threadIdx.x;
-    unsigned int col_idx = threadIdx.x * (blockDim.y + PAD) + threadIdx.y;
-
+    // 全局内存的线性索引
     unsigned int g_idx = threadIdx.y * blockDim.x + threadIdx.x;
+
+    unsigned int row = g_idx / blockDim.y;
+    unsigned int col = g_idx % blockDim.y;
+
+    unsigned int row_idx = threadIdx.y * (blockDim.x + PAD) + threadIdx.x;
+    unsigned int col_idx = col * (blockDim.x + PAD) + row;
 
     tile[row_idx] = g_idx;
 
@@ -160,43 +179,43 @@ int main(int argc, char const *argv[])
     writeRowReadRow<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read row\t\t", gpuRef, nx * ny);
+        printData("write row read row:\t\t", gpuRef, nx * ny);
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeColReadCol<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write col read col\t\t", gpuRef, nx * ny);
+        printData("write col read col:\t\t", gpuRef, nx * ny);
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeColReadRow<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write col read row\t\t", gpuRef, nx * ny);
+        printData("write col read row:\t\t", gpuRef, nx * ny);
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadCol<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col\t\t", gpuRef, nx * ny);
+        printData("write row read col:\t\t", gpuRef, nx * ny);
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadColDynamic<<<grid, block, BDIMX * BDIMY * sizeof(int)>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col Dyn\t\t", gpuRef, nx * ny);
+        printData("write row read col Dyn:\t\t", gpuRef, nx * ny);
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadColPadding<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col Pad\t\t", gpuRef, nx * ny);
+        printData("write row read col Pad:\t\t", gpuRef, nx * ny);
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadColDynPad<<<grid, block, BDIMX * BDIMY * sizeof(int)>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col DynPad\t", gpuRef, nx * ny);
+        printData("write row read col DynPad:\t", gpuRef, nx * ny);
 
     return 0;
 }
