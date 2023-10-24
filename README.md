@@ -4,7 +4,27 @@ The majority of the code in this repository is derived from the book *Profession
 
 This project is built using CMake. The specific compilation and installation process is outlined below.
 
-# Installation Steps
+# Automatic Installation Steps
+
+Clone this repository to your local machine.
+
+```sh
+git clone https://github.com/Deleter-D/CUDA.git
+```
+
+If you have SSH configured, you can use the following command instead.
+
+```sh
+git clone git@github.com:Deleter-D/CUDA.git
+```
+
+Run the automatic compilation installation script.
+
+```sh
+./install.sh
+```
+
+# Manual Installation Steps
 
 Clone this repository to your local machine.
 

@@ -4,7 +4,27 @@
 
 本项目利用CMake构建，具体编译安装过程如下。
 
-# 安装步骤
+# 自动安装步骤
+
+克隆本仓库到本地
+
+```sh
+git clone https://github.com/Deleter-D/CUDA.git
+```
+
+如果你配置了SSH，则可以用以下命令代替。
+
+```sh
+git clone git@github.com:Deleter-D/CUDA.git
+```
+
+运行自动编译安装脚本。
+
+```sh
+./install.sh
+```
+
+# 手动安装步骤
 
 克隆本仓库到本地
 
