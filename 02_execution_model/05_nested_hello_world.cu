@@ -4,12 +4,12 @@
 
 /*
     使用下列命令编译
-    nvcc -g /path/to/05_nestedHelloWorld.cu -o /path/to/out/05_nestedHelloWorld -arch sm_89 -rdc true
+    nvcc -g /path/to/05_nestedHelloWorld.cu -o /path/to/05_nestedHelloWorld -arch sm_89 -rdc true
 
     注意需要编译选项-rdc为true，一些资料中提到还需要链接cudadevrt库，但笔者这里没有显式链接也正常执行了，推测是自动链接了
 
     若不能正常执行，请使用下列命令编译
-    nvcc -g /path/to/05_nestedHelloWorld.cu -o /path/to/out/05_nestedHelloWorld -arch sm_89 -rdc true -lcudadevrt
+    nvcc -g /path/to/05_nestedHelloWorld.cu -o /path/to/05_nestedHelloWorld -arch sm_89 -rdc true -lcudadevrt
 */
 
 __global__ void nestedHelloWorld(int const size, int depth)

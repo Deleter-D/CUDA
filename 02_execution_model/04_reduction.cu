@@ -6,13 +6,13 @@
 
 /*
     使用ncu分析每个线程束上执行的指令数量
-    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics smsp__average_inst_executed_per_warp.ratio /path/to/out/04_reduction
+    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics smsp__average_inst_executed_per_warp.ratio /path/to/04_reduction
 
     使用ncu分析内存读取效率
-    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/04_reduction
+    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/04_reduction
 
     使用ncu分析内存加载和存储效率
-    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/to/out/04_reduction
+    sudo ncu --target-processes all --kernel-name regex:"reduce*" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/to/04_reduction
 */
 
 // C语言递归实现的归约求和

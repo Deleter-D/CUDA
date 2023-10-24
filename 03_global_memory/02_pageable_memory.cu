@@ -5,7 +5,7 @@
 
 /*
     使用如下命令分析代码
-    nsys nvprof /path/to/out/02_pageable_memory
+    nsys nvprof /path/to/02_pageable_memory
 */
 
 int main(int argc, char const *argv[])

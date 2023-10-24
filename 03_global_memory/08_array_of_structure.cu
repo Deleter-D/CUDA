@@ -5,9 +5,9 @@
 
 /*
     使用如下命令分析全局加载和存储效率
-    sudo ncu --target-processes all -k testInnerStruct --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/out/08_array_of_structure
-    sudo ncu --target-processes all -k testInnerStruct --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/out/08_array_of_structure
-    sudo ncu --target-processes all -k testInnerStruct --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/out/08_array_of_structure
+    sudo ncu --target-processes all -k testInnerStruct --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/08_array_of_structure
+    sudo ncu --target-processes all -k testInnerStruct --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/08_array_of_structure
+    sudo ncu --target-processes all -k testInnerStruct --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct,smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct /path/08_array_of_structure
 */
 
 #define LEN 1 << 20

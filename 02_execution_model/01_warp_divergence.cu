@@ -6,10 +6,10 @@
   由于NV从计算能力7.0之后就弃用了nvprof，而笔者的设备计算能力为8.9，故这里使用ncu来代替nvprof
 
   在编译本文件是加上-G参数来防止nvcc借助分支预测优化代码
-  nvcc -g -G /path/to/01_warp_divergence.cu -o /path/to/out/01_warp_divergence -arch sm_89
+  nvcc -g -G /path/to/01_warp_divergence.cu -o /path/to/01_warp_divergence -arch sm_89
 
   使用ncu分析三个核函数的分支效率
-  sudo ncu --target-processes all -k regex:"mathKernel*" --metrics smsp__sass_average_branch_targets_threads_uniform.pct ./out/01_warp_divergence
+  sudo ncu --target-processes all -k regex:"mathKernel*" --metrics smsp__sass_average_branch_targets_threads_uniform.pct ./01_warp_divergence
 */
 
 // 线程ID为偶数的执行if，线程ID为奇数的执行else

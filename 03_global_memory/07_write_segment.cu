@@ -5,9 +5,9 @@
 
 /*
     使用如下命令分析全局存储效率和全局存储事务
-    sudo ncu --target-processes all -k sumArraysWriteOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/out/07_write_segment 0
-    sudo ncu --target-processes all -k sumArraysWriteOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/out/07_write_segment 11
-    sudo ncu --target-processes all -k sumArraysWriteOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/out/07_write_segment 128
+    sudo ncu --target-processes all -k sumArraysWriteOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/07_write_segment 0
+    sudo ncu --target-processes all -k sumArraysWriteOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/07_write_segment 11
+    sudo ncu --target-processes all -k sumArraysWriteOffset --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_st.pct,l1tex__t_sectors_pipe_lsu_mem_global_op_st.sum /path/07_write_segment 128
 */
 
 void sumArraysHost(float *A, float *B, float *C, const int size, int offset)

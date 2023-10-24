@@ -5,25 +5,25 @@
 
 /*
     使用如下命令编译代码
-    nvcc -O3 /path/to/03_parallelism.cu -o /path/to/out/03_parallelism -arch sm_89
+    nvcc -O3 /path/to/03_parallelism.cu -o /path/to/03_parallelism -arch sm_89
 
     使用ncu分析不同block设计下的占用率：
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/out/03_parallelism 32 32
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/out/03_parallelism 32 16
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/out/03_parallelism 16 32
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/out/03_parallelism 16 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/03_parallelism 32 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/03_parallelism 32 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/03_parallelism 16 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics sm__warps_active.avg.pct_of_peak_sustained_active /path/to/03_parallelism 16 16
 
     使用ncu分析不同block设计下的内存读取效率：
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 32 32
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 32 16
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 16 32
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/out/03_parallelism 16 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/03_parallelism 32 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/03_parallelism 32 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/03_parallelism 16 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics l1tex__t_bytes_pipe_lsu_mem_global_op_ld.sum.per_second /path/to/03_parallelism 16 16
 
     使用ncu分析不同block设计下的全局加载效率：
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 32 32
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 32 16
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 16 32
-    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/out/03_parallelism 16 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/03_parallelism 32 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/03_parallelism 32 16
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/03_parallelism 16 32
+    sudo ncu --target-processes all -k "sumMatrixOnGPU2D" --metrics smsp__sass_average_data_bytes_per_sector_mem_global_op_ld.pct /path/to/03_parallelism 16 16
 */
 
 __global__ void sumMatrixOnGPU2D(float *A, float *B, float *C, int NX, int NY)

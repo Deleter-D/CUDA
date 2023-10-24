@@ -5,15 +5,15 @@
 
 /*
     使用如下命令分析代码
-    nsys nvprof /path/to/out/04_mapped_memory 8
-    nsys nvprof /path/to/out/04_mapped_memory 10
-    nsys nvprof /path/to/out/04_mapped_memory 12
-    nsys nvprof /path/to/out/04_mapped_memory 14
-    nsys nvprof /path/to/out/04_mapped_memory 16
-    nsys nvprof /path/to/out/04_mapped_memory 18
-    nsys nvprof /path/to/out/04_mapped_memory 20
-    nsys nvprof /path/to/out/04_mapped_memory 22
-    nsys nvprof /path/to/out/04_mapped_memory 24
+    nsys nvprof /path/to/04_mapped_memory 8
+    nsys nvprof /path/to/04_mapped_memory 10
+    nsys nvprof /path/to/04_mapped_memory 12
+    nsys nvprof /path/to/04_mapped_memory 14
+    nsys nvprof /path/to/04_mapped_memory 16
+    nsys nvprof /path/to/04_mapped_memory 18
+    nsys nvprof /path/to/04_mapped_memory 20
+    nsys nvprof /path/to/04_mapped_memory 22
+    nsys nvprof /path/to/04_mapped_memory 24
 */
 
 void sumArraysHost(float *A, float *B, float *C, const int size)

@@ -1,6 +1,6 @@
 add_executable(01_global_variable 01_global_variable.cu)
 set_target_properties(01_global_variable PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
-install(TARGETS  DESTINATION 03_global_memory)
+install(TARGETS 01_global_variable DESTINATION 03_global_memory)
 
 add_executable(02_pageable_memory 02_pageable_memory.cu)
 set_target_properties(02_pageable_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
