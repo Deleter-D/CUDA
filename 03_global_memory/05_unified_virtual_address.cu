@@ -60,12 +60,12 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaMalloc((void **)&d_C, bytes));
 
     // 通过cudaPointerGetAttributes来获取指针属性
-    cudaPointerAttributes attr;
-    ERROR_CHECK(cudaPointerGetAttributes(&attr, h_A));
-    int dev = attr.device;             // 内存所在的设备
-    auto host_ptr = attr.hostPointer;  // 获取主机端的指针，若没有则为空，可以通过&运算符操作
-    auto dev_ptr = attr.devicePointer; // 获取设备端的指针，若没有则为空，可以通过&运算符操作
-    cudaMemoryType type = attr.type;   // 获取内存类型
+    // cudaPointerAttributes attr;
+    // ERROR_CHECK(cudaPointerGetAttributes(&attr, h_A));
+    // int dev = attr.device;             // 内存所在的设备
+    // auto host_ptr = attr.hostPointer;  // 获取主机端的指针，若没有则为空，可以通过&运算符操作
+    // auto dev_ptr = attr.devicePointer; // 获取设备端的指针，若没有则为空，可以通过&运算符操作
+    // cudaMemoryType type = attr.type;   // 获取内存类型
 
     sumArraysHost(h_A, h_B, hostRef, size);
     sumArraysZeroCopy<<<grid, block>>>(h_A, h_B, d_C, size);

@@ -270,7 +270,7 @@ int main(int argc, char const *argv[])
 
     // 预热
     ERROR_CHECK(cudaEventRecord(start));
-    warmupKernelDo();
+    reduceGmem<<<grid.x, block>>>(d_idata, d_odata, size);
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));
     ERROR_CHECK(cudaEventElapsedTime(&elapsedTime, start, stop));

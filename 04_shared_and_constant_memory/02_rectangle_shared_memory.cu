@@ -135,7 +135,7 @@ __global__ void writeRowReadColDynPad(int *out)
     out[g_idx] = tile[col_idx];
 }
 
-void printData(char *msg, int *in, const int size)
+void printData(const char *msg, int *in, const int size)
 {
     printf("%s", msg);
 
@@ -164,6 +164,7 @@ int main(int argc, char const *argv[])
     int nx = BDIMX;
     int ny = BDIMY;
 
+    const char *msg;
     size_t bytes = nx * ny * sizeof(int);
 
     int *gpuRef;
@@ -179,43 +180,64 @@ int main(int argc, char const *argv[])
     writeRowReadRow<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read row:\t\t", gpuRef, nx * ny);
+    {
+        msg = "write row read row:\t\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeColReadCol<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write col read col:\t\t", gpuRef, nx * ny);
+    {
+        msg = "write col read col:\t\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeColReadRow<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write col read row:\t\t", gpuRef, nx * ny);
+    {
+        msg = "write col read row:\t\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadCol<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col:\t\t", gpuRef, nx * ny);
+    {
+        msg = "write row read col:\t\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadColDynamic<<<grid, block, BDIMX * BDIMY * sizeof(int)>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col Dyn:\t\t", gpuRef, nx * ny);
+    {
+        msg = "write row read col Dyn:\t\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadColPadding<<<grid, block>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col Pad:\t\t", gpuRef, nx * ny);
+    {
+        msg = "write row read col Pad:\t\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     ERROR_CHECK(cudaMemset(d_C, 0, bytes));
     writeRowReadColDynPad<<<grid, block, BDIMX * BDIMY * sizeof(int)>>>(d_C);
     ERROR_CHECK(cudaMemcpy(gpuRef, d_C, bytes, cudaMemcpyDeviceToHost));
     if (print)
-        printData("write row read col DynPad:\t", gpuRef, nx * ny);
+    {
+        msg = "write row read col DynPad:\t";
+        printData(msg, gpuRef, nx * ny);
+    }
 
     return 0;
 }
