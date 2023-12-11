@@ -58,7 +58,7 @@ void initializeInnerStruct(innerStruct *ptr, const int size)
 void checkInnerStruct(innerStruct *hostRef, innerStruct *gpuRef, const int size)
 {
     double epsilon = 1.0E-8;
-    bool match = true;
+    bool match     = true;
     for (int i = 0; i < size; i++)
     {
         if (abs(hostRef[i].x - gpuRef[i].x) > epsilon)
@@ -82,13 +82,13 @@ int main(int argc, char const *argv[])
 {
     setDevice();
 
-    int size = LEN;
+    int size     = LEN;
     size_t bytes = size * sizeof(innerStruct);
 
     innerStruct *h_A, *hostRef, *gpuRef;
-    h_A = (innerStruct *)malloc(bytes);
+    h_A     = (innerStruct *)malloc(bytes);
     hostRef = (innerStruct *)malloc(bytes);
-    gpuRef = (innerStruct *)malloc(bytes);
+    gpuRef  = (innerStruct *)malloc(bytes);
 
     initializeInnerStruct(h_A, size);
 

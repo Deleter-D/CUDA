@@ -9,3 +9,4 @@ BraceWrapping:
     BeforeElse: true
     AfterStruct: true
 SpacesBeforeTrailingComments: 1
+AlignConsecutiveAssignments: Consecutive

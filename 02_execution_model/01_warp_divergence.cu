@@ -1,6 +1,7 @@
-#include "../utils/common.cuh"
 #include <cuda_runtime.h>
 #include <stdio.h>
+
+#include "../utils/common.cuh"
 
 /*
   由于NV从计算能力7.0之后就弃用了nvprof，而笔者的设备计算能力为8.9，故这里使用ncu来代替nvprof

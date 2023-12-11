@@ -1,6 +1,7 @@
+#include <cuda_runtime.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <cuda_runtime.h>
+
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
@@ -145,10 +146,10 @@ __global__ void reduceUnrolling4(int *g_idata, int *g_odata, unsigned int size)
 
     if (idx + blockDim.x * 3 < size)
     {
-        int a1 = g_idata[idx];
-        int a2 = g_idata[idx + blockDim.x];
-        int a3 = g_idata[idx + blockDim.x * 2];
-        int a4 = g_idata[idx + blockDim.x * 3];
+        int a1       = g_idata[idx];
+        int a2       = g_idata[idx + blockDim.x];
+        int a3       = g_idata[idx + blockDim.x * 2];
+        int a4       = g_idata[idx + blockDim.x * 3];
         g_idata[idx] = a1 + a2 + a3 + a4;
     }
     __syncthreads();
@@ -177,14 +178,14 @@ __global__ void reduceUnrolling8(int *g_idata, int *g_odata, unsigned int size)
 
     if (idx + blockDim.x * 7 < size)
     {
-        int a1 = g_idata[idx];
-        int a2 = g_idata[idx + blockDim.x];
-        int a3 = g_idata[idx + blockDim.x * 2];
-        int a4 = g_idata[idx + blockDim.x * 3];
-        int a5 = g_idata[idx + blockDim.x * 4];
-        int a6 = g_idata[idx + blockDim.x * 5];
-        int a7 = g_idata[idx + blockDim.x * 6];
-        int a8 = g_idata[idx + blockDim.x * 7];
+        int a1       = g_idata[idx];
+        int a2       = g_idata[idx + blockDim.x];
+        int a3       = g_idata[idx + blockDim.x * 2];
+        int a4       = g_idata[idx + blockDim.x * 3];
+        int a5       = g_idata[idx + blockDim.x * 4];
+        int a6       = g_idata[idx + blockDim.x * 5];
+        int a7       = g_idata[idx + blockDim.x * 6];
+        int a8       = g_idata[idx + blockDim.x * 7];
         g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
     }
     __syncthreads();
@@ -212,14 +213,14 @@ __global__ void reduceUnrollWarps8(int *g_idata, int *g_odata, unsigned int size
 
     if (idx + blockDim.x * 7 < size)
     {
-        int a1 = g_idata[idx];
-        int a2 = g_idata[idx + blockDim.x];
-        int a3 = g_idata[idx + blockDim.x * 2];
-        int a4 = g_idata[idx + blockDim.x * 3];
-        int a5 = g_idata[idx + blockDim.x * 4];
-        int a6 = g_idata[idx + blockDim.x * 5];
-        int a7 = g_idata[idx + blockDim.x * 6];
-        int a8 = g_idata[idx + blockDim.x * 7];
+        int a1       = g_idata[idx];
+        int a2       = g_idata[idx + blockDim.x];
+        int a3       = g_idata[idx + blockDim.x * 2];
+        int a4       = g_idata[idx + blockDim.x * 3];
+        int a5       = g_idata[idx + blockDim.x * 4];
+        int a6       = g_idata[idx + blockDim.x * 5];
+        int a7       = g_idata[idx + blockDim.x * 6];
+        int a8       = g_idata[idx + blockDim.x * 7];
         g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
     }
     __syncthreads();
@@ -259,14 +260,14 @@ __global__ void reduceCompleteUnrollWarps8(int *g_idata, int *g_odata, unsigned 
 
     if (idx + blockDim.x * 7 < size)
     {
-        int a1 = g_idata[idx];
-        int a2 = g_idata[idx + blockDim.x];
-        int a3 = g_idata[idx + blockDim.x * 2];
-        int a4 = g_idata[idx + blockDim.x * 3];
-        int a5 = g_idata[idx + blockDim.x * 4];
-        int a6 = g_idata[idx + blockDim.x * 5];
-        int a7 = g_idata[idx + blockDim.x * 6];
-        int a8 = g_idata[idx + blockDim.x * 7];
+        int a1       = g_idata[idx];
+        int a2       = g_idata[idx + blockDim.x];
+        int a3       = g_idata[idx + blockDim.x * 2];
+        int a4       = g_idata[idx + blockDim.x * 3];
+        int a5       = g_idata[idx + blockDim.x * 4];
+        int a6       = g_idata[idx + blockDim.x * 5];
+        int a7       = g_idata[idx + blockDim.x * 6];
+        int a8       = g_idata[idx + blockDim.x * 7];
         g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
     }
     __syncthreads();
@@ -314,14 +315,14 @@ __global__ void reduceCompleteUnroll(int *g_idata, int *g_odata, unsigned int si
 
     if (idx + blockDim.x * 7 < size)
     {
-        int a1 = g_idata[idx];
-        int a2 = g_idata[idx + blockDim.x];
-        int a3 = g_idata[idx + blockDim.x * 2];
-        int a4 = g_idata[idx + blockDim.x * 3];
-        int a5 = g_idata[idx + blockDim.x * 4];
-        int a6 = g_idata[idx + blockDim.x * 5];
-        int a7 = g_idata[idx + blockDim.x * 6];
-        int a8 = g_idata[idx + blockDim.x * 7];
+        int a1       = g_idata[idx];
+        int a2       = g_idata[idx + blockDim.x];
+        int a3       = g_idata[idx + blockDim.x * 2];
+        int a4       = g_idata[idx + blockDim.x * 3];
+        int a5       = g_idata[idx + blockDim.x * 4];
+        int a6       = g_idata[idx + blockDim.x * 5];
+        int a7       = g_idata[idx + blockDim.x * 6];
+        int a8       = g_idata[idx + blockDim.x * 7];
         g_idata[idx] = a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8;
     }
     __syncthreads();
@@ -377,7 +378,7 @@ int main(int argc, char const *argv[])
     int *h_idata, *h_odata, *temp;
     h_idata = (int *)malloc(size * sizeof(int));
     h_odata = (int *)malloc(grid.x * sizeof(int));
-    temp = (int *)malloc(size * sizeof(int)); // 用于CPU端求和
+    temp    = (int *)malloc(size * sizeof(int)); // 用于CPU端求和
 
     initializeData<int>(h_idata, size);
     memcpy(temp, h_idata, size * sizeof(int));
@@ -402,7 +403,7 @@ int main(int argc, char const *argv[])
     struct timeval tp;
     gettimeofday(&tp, NULL);
     double start_cpu = (double)(tp.tv_sec * 1.e3) + (double)(tp.tv_usec * 1.e-3);
-    cpu_sum = recursiveReduce(temp, size);
+    cpu_sum          = recursiveReduce(temp, size);
     gettimeofday(&tp, NULL);
     double elapsed_time_cpu = (double)(tp.tv_sec * 1.e3) + (double)(tp.tv_usec * 1.e-3) - start_cpu;
     printf("cpu reduce\telapsed %g ms\tcpu_sum: %d\n", elapsed_time_cpu, cpu_sum);
@@ -524,21 +525,21 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaEventRecord(start));
     switch (blocksize)
     {
-    case 1024:
-        reduceCompleteUnroll<1024><<<grid.x / 8, block>>>(d_idata, d_odata, size);
-        break;
-    case 512:
-        reduceCompleteUnroll<512><<<grid.x / 8, block>>>(d_idata, d_odata, size);
-        break;
-    case 256:
-        reduceCompleteUnroll<256><<<grid.x / 8, block>>>(d_idata, d_odata, size);
-        break;
-    case 128:
-        reduceCompleteUnroll<128><<<grid.x / 8, block>>>(d_idata, d_odata, size);
-        break;
-    case 64:
-        reduceCompleteUnroll<64><<<grid.x / 8, block>>>(d_idata, d_odata, size);
-        break;
+        case 1024:
+            reduceCompleteUnroll<1024><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+            break;
+        case 512:
+            reduceCompleteUnroll<512><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+            break;
+        case 256:
+            reduceCompleteUnroll<256><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+            break;
+        case 128:
+            reduceCompleteUnroll<128><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+            break;
+        case 64:
+            reduceCompleteUnroll<64><<<grid.x / 8, block>>>(d_idata, d_odata, size);
+            break;
     }
     ERROR_CHECK(cudaEventRecord(stop));
     ERROR_CHECK(cudaEventSynchronize(stop));

@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include <cuda_runtime.h>
+#include <stdio.h>
+
 #include "../utils/common.cuh"
 
 /*
@@ -30,14 +31,14 @@ __global__ void nestedHelloWorld(int const size, int depth)
 
 int main(int argc, char const *argv[])
 {
-    int size = 8;
+    int size      = 8;
     int blocksize = 8;
-    int gridsize = 1;
+    int gridsize  = 1;
 
     if (argc > 1)
     {
         gridsize = atoi(argv[1]);
-        size = gridsize * blocksize;
+        size     = gridsize * blocksize;
     }
 
     setDevice();

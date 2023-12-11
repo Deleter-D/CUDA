@@ -70,8 +70,8 @@ __global__ void transposeUnroll4Row(float *out, float *in, const int nx, const i
 
     if (ix + blockDim.x * 3 < nx && iy < ny)
     {
-        out[to] = in[ti];
-        out[to + ny * blockDim.x] = in[ti + blockDim.x];
+        out[to]                       = in[ti];
+        out[to + ny * blockDim.x]     = in[ti + blockDim.x];
         out[to + ny * blockDim.x * 2] = in[ti + blockDim.x * 2];
         out[to + ny * blockDim.x * 3] = in[ti + blockDim.x * 3];
     }
@@ -87,8 +87,8 @@ __global__ void transposeUnroll4Col(float *out, float *in, const int nx, const i
     unsigned int to = iy * nx + ix;
     if (ix + blockDim.x * 3 < nx && iy < ny)
     {
-        out[to] = in[ti];
-        out[to + blockDim.x] = in[ti + ny * blockDim.x];
+        out[to]                  = in[ti];
+        out[to + blockDim.x]     = in[ti + ny * blockDim.x];
         out[to + blockDim.x * 2] = in[ti + ny * blockDim.x * 2];
         out[to + blockDim.x * 3] = in[ti + ny * blockDim.x * 3];
     }
@@ -132,8 +132,8 @@ int main(int argc, char const *argv[])
     int ny = 1 << 11;
 
     int kernelNum = 0;
-    int blockx = 16;
-    int blocky = 16;
+    int blockx    = 16;
+    int blocky    = 16;
     if (argc > 1)
         kernelNum = atoi(argv[1]);
     if (argc > 2)
@@ -149,9 +149,9 @@ int main(int argc, char const *argv[])
     dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
 
     float *h_A, *hostRef, *gpuRef;
-    h_A = (float *)malloc(bytes);
+    h_A     = (float *)malloc(bytes);
     hostRef = (float *)malloc(bytes);
-    gpuRef = (float *)malloc(bytes);
+    gpuRef  = (float *)malloc(bytes);
 
     initializeData<float>(h_A, nx * ny);
 
@@ -175,35 +175,35 @@ int main(int argc, char const *argv[])
     switch (kernelNum)
     {
         case 0:
-            kernel = &copyRow;
+            kernel     = &copyRow;
             kernelName = "CopyRow";
             break;
         case 1:
-            kernel = &copyCol;
+            kernel     = &copyCol;
             kernelName = "CopyCol";
             break;
         case 2:
-            kernel = &transposeNaiveRow;
+            kernel     = &transposeNaiveRow;
             kernelName = "NaiveRow";
             break;
         case 3:
-            kernel = &transposeNaiveCol;
+            kernel     = &transposeNaiveCol;
             kernelName = "NaiveCol";
             break;
         case 4:
-            kernel = &transposeUnroll4Row;
+            kernel     = &transposeUnroll4Row;
             kernelName = "Unroll4Row";
             break;
         case 5:
-            kernel = &transposeUnroll4Col;
+            kernel     = &transposeUnroll4Col;
             kernelName = "Unroll4Col";
             break;
         case 6:
-            kernel = &transposeDiagonalRow;
+            kernel     = &transposeDiagonalRow;
             kernelName = "DiagonalRow";
             break;
         case 7:
-            kernel = &transposeDiagonalCol;
+            kernel     = &transposeDiagonalCol;
             kernelName = "DiagonalCol";
             break;
     }

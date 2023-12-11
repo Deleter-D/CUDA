@@ -20,7 +20,7 @@ void sumArraysHost(float *A, float *B, float *C, const int size, int offset)
 __global__ void sumArraysReadOffset(float *A, float *B, float *C, const int size, int offset)
 {
     unsigned tid = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned j = tid + offset;
+    unsigned j   = tid + offset;
     if (j < size)
         C[tid] = A[j] + B[j];
 }
@@ -28,11 +28,11 @@ __global__ void sumArraysReadOffset(float *A, float *B, float *C, const int size
 __global__ void readOffsetUnroll4(float *A, float *B, float *C, const int size, int offset)
 {
     unsigned int tid = blockIdx.x * blockDim.x * 4 + threadIdx.x;
-    unsigned int j = tid + offset;
+    unsigned int j   = tid + offset;
     if (j + 3 * blockDim.x < size)
     {
-        C[tid] = A[j] + B[j];
-        C[tid + blockDim.x] = A[j + blockDim.x] + B[j + blockDim.x];
+        C[tid]                  = A[j] + B[j];
+        C[tid + blockDim.x]     = A[j + blockDim.x] + B[j + blockDim.x];
         C[tid + blockDim.x * 2] = A[j + blockDim.x * 2] + B[j + blockDim.x * 2];
         C[tid + blockDim.x * 3] = A[j + blockDim.x * 3] + B[j + blockDim.x * 3];
     }
@@ -58,10 +58,10 @@ int main(int argc, char const *argv[])
     dim3 grid((size + block.x - 1) / block.x);
 
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A = (float *)malloc(bytes);
-    h_B = (float *)malloc(bytes);
+    h_A     = (float *)malloc(bytes);
+    h_B     = (float *)malloc(bytes);
     hostRef = (float *)malloc(bytes);
-    gpuRef = (float *)malloc(bytes);
+    gpuRef  = (float *)malloc(bytes);
 
     initializeData<float>(h_A, size);
     initializeData<float>(h_B, size);

@@ -5,7 +5,7 @@
 int main(int argc, char const *argv[])
 {
     // >>>>> 运行时API获取GPU信息 >>>>>
-    int deviceCount = 0;
+    int deviceCount      = 0;
     cudaError_t error_id = cudaGetDeviceCount(&deviceCount); // 获取设备数量
     if (error_id != cudaSuccess)
     {
@@ -88,7 +88,7 @@ int main(int argc, char const *argv[])
             if (maxMultiprocessors < props.multiProcessorCount)
             {
                 maxMultiprocessors = props.multiProcessorCount;
-                maxDevice = device;
+                maxDevice          = device;
             }
         }
         cudaSetDevice(maxDevice);

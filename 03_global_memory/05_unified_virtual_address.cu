@@ -35,7 +35,7 @@ int main(int argc, char const *argv[])
     int power = 10;
     if (argc > 1)
         power = atoi(argv[1]);
-    int size = 1 << power;
+    int size     = 1 << power;
     size_t bytes = size * sizeof(float);
     if (power < 18)
         printf("Vector size %d,\t%3.0f KB\n", size, (float)bytes / 1024.0f);
@@ -50,7 +50,7 @@ int main(int argc, char const *argv[])
     ERROR_CHECK(cudaHostAlloc((void **)&h_A, bytes, cudaHostAllocMapped));
     ERROR_CHECK(cudaHostAlloc((void **)&h_B, bytes, cudaHostAllocMapped));
     hostRef = (float *)malloc(bytes);
-    gpuRef = (float *)malloc(bytes);
+    gpuRef  = (float *)malloc(bytes);
 
     initializeData<float>(h_A, size);
     initializeData<float>(h_B, size);

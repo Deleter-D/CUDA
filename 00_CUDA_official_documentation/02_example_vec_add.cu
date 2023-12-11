@@ -41,7 +41,7 @@ __global__ void vecAdd(float *A, float *B, float *C, const int N)
 {
     const int bid = blockIdx.x;
     const int tid = threadIdx.x;
-    const int id = bid * blockDim.x + tid;
+    const int id  = bid * blockDim.x + tid;
 
     // 由于为了适应总线程数无法整除block数，会多申请一个block
     // 而总的线程数就会大于元素总个数，所以需要一个判断来控制运算的合法性
@@ -52,7 +52,7 @@ __global__ void vecAdd(float *A, float *B, float *C, const int N)
 int main(int argc, char const *argv[])
 {
     // >>> 初始化GPU设备 <<<
-    int deviceCount = 0;
+    int deviceCount   = 0;
     cudaError_t error = ErrorCheck(cudaGetDeviceCount(&deviceCount), __FILE__, __LINE__); // 获取设备数量
     // 该API返回一个cudaError_t的枚举类
     if (error != cudaError_t::cudaSuccess | deviceCount == 0)
@@ -67,7 +67,7 @@ int main(int argc, char const *argv[])
     }
 
     int device = 0;
-    error = ErrorCheck(cudaSetDevice(device), __FILE__, __LINE__); // 设置执行设备代码的目标设备
+    error      = ErrorCheck(cudaSetDevice(device), __FILE__, __LINE__); // 设置执行设备代码的目标设备
     if (error != cudaSuccess)
     {
         printf("Fail to set GPU %d for computing.\n", device);
@@ -80,7 +80,7 @@ int main(int argc, char const *argv[])
     // 上面的代码可以封装到一个头文件中，方便日后使用，见utils/common.cuh
 
     // >>> 主机内存分配及其初始化 <<<
-    int elemCount = 513;                           // 元素个数
+    int elemCount     = 513;                       // 元素个数
     size_t bytesCount = elemCount * sizeof(float); // 总字节数
     float *h_A, *h_B, *h_C;
     // 申请主机内存

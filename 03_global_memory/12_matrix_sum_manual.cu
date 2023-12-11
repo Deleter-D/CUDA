@@ -25,8 +25,8 @@ void sumMatrixOnHost(float *A, float *B, float *C, const int nx, const int ny)
 
 __global__ void sumMatrixGPU(float *A, float *B, float *C, const int nx, const int ny)
 {
-    unsigned int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ix  = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int iy  = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int idx = iy * nx + ix;
 
     if (ix < nx && iy < ny)
@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     setDevice();
 
     int nx, ny;
-    nx = ny = 1 << 12;
+    nx = ny   = 1 << 12;
     int bytes = nx * ny * sizeof(float);
     printf("Matrix size: %d x %d\tTotal: %d\n", nx, ny, nx * ny);
 
@@ -49,10 +49,10 @@ int main(int argc, char const *argv[])
     printf("tasks\t\ttime\n");
 
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A = (float *)malloc(bytes);
-    h_B = (float *)malloc(bytes);
+    h_A     = (float *)malloc(bytes);
+    h_B     = (float *)malloc(bytes);
     hostRef = (float *)malloc(bytes);
-    gpuRef = (float *)malloc(bytes);
+    gpuRef  = (float *)malloc(bytes);
 
     ERROR_CHECK(cudaEventRecord(start));
     initializeData<float>(h_A, nx * ny);

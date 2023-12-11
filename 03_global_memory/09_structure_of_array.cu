@@ -60,7 +60,7 @@ void initilalizeInnerArray(innerArray *ptr, int size)
 void checkInnerArray(innerArray *hostRef, innerArray *gpuRef, const int size)
 {
     double epsilon = 1.0E-8;
-    bool match = true;
+    bool match     = true;
     for (int i = 0; i < size; i++)
     {
         if (abs(hostRef->x[i] - gpuRef->x[i]) > epsilon)
@@ -86,13 +86,13 @@ int main(int argc, char const *argv[])
 {
     setDevice();
 
-    int size = LEN;
+    int size     = LEN;
     size_t bytes = sizeof(innerArray);
 
     innerArray *h_A, *hostRef, *gpuRef;
-    h_A = (innerArray *)malloc(bytes);
+    h_A     = (innerArray *)malloc(bytes);
     hostRef = (innerArray *)malloc(bytes);
-    gpuRef = (innerArray *)malloc(bytes);
+    gpuRef  = (innerArray *)malloc(bytes);
 
     initilalizeInnerArray(h_A, size);
 

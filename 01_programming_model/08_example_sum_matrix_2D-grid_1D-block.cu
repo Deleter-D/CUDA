@@ -25,9 +25,9 @@ void sumMatrixOnHost(float *A, float *B, float *C, const int nx, const int ny)
 // 二维grid一维block的矩阵加法核函数
 __global__ void sumMatrixOnGPUMix(float *MatA, float *MatB, float *MatC, int nx, int ny)
 {
-    unsigned int ix = blockDim.x * blockIdx.x + threadIdx.x; // 线程在x维度上的索引
-    unsigned int iy = blockIdx.y;                            // 线程在y维度上的索引
-    unsigned int idx = iy * nx + ix;                         // 线程的全局索引
+    unsigned int ix  = blockDim.x * blockIdx.x + threadIdx.x; // 线程在x维度上的索引
+    unsigned int iy  = blockIdx.y;                            // 线程在y维度上的索引
+    unsigned int idx = iy * nx + ix;                          // 线程的全局索引
 
     if (ix < nx && iy < ny)
     {
@@ -43,16 +43,16 @@ int main(int argc, char const *argv[])
     int nx = 1 << 14; // 16384
     int ny = 1 << 14; // 16384
 
-    int nxy = nx * ny;
+    int nxy    = nx * ny;
     int nBytes = nxy * sizeof(float);
     printf("Matrix size: (%d, %d)\n", nx, ny);
 
     // 申请主机内存
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A = (float *)malloc(nBytes);
-    h_B = (float *)malloc(nBytes);
+    h_A     = (float *)malloc(nBytes);
+    h_B     = (float *)malloc(nBytes);
     hostRef = (float *)malloc(nBytes);
-    gpuRef = (float *)malloc(nBytes);
+    gpuRef  = (float *)malloc(nBytes);
 
     // 初始化主机端数据
     initializeData<float>(h_A, nxy);

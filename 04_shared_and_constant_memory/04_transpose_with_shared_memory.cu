@@ -10,6 +10,9 @@
 
     使用如下命令分析共享内存事务数量
     sudo ncu --target-processes all --kernel-name regex:"[a-z]*" --metrics l1tex__data_pipe_lsu_wavefronts_mem_shared_op_ld.sum,l1tex__data_pipe_lsu_wavefronts_mem_shared_op_st.sum /path/to/04_transpose_with_shared_memory
+
+    使用如下命令分析设备内存的读写吞吐量
+    sudo ncu --target-processes all --kernel-name regex:"[a-z]*" --metrics dram__bytes_read.sum.per_second,dram__bytes_write.sum.per_second /path/to/04_transpose_with_shared_memory
 */
 
 #define BDIMX 32
@@ -126,11 +129,9 @@ __global__ void transposeSmemUnrollPad(float *out, float *in, int rows, int cols
 
     if (row < rows && col + blockDim.x < cols)
     {
-        tile[threadIdx.y][threadIdx.x] = in[INDEX(row, col, cols)];
+        tile[threadIdx.y][threadIdx.x]              = in[INDEX(row, col, cols)];
         tile[threadIdx.y][threadIdx.x + blockDim.x] = in[INDEX(row, col + blockDim.x, cols)];
     }
-
-    __syncthreads();
 
     // 转置block中的线程索引
     unsigned int bidx = threadIdx.y * blockDim.x + threadIdx.x;
@@ -140,9 +141,11 @@ __global__ void transposeSmemUnrollPad(float *out, float *in, int rows, int cols
     row = 2 * blockIdx.x * blockDim.x + irow;
     col = blockIdx.y * blockDim.y + icol;
 
+    __syncthreads();
+
     if (row + blockDim.x < cols && col < rows)
     {
-        out[INDEX(row, col, rows)] = tile[icol][irow];
+        out[INDEX(row, col, rows)]              = tile[icol][irow];
         out[INDEX(row + blockDim.x, col, rows)] = tile[icol][irow + blockDim.x];
     }
 }
@@ -155,15 +158,15 @@ int main(int argc, char const *argv[])
     int cols = 1 << 12;
 
     printf("Matrix Size: %dx%d\n", rows, cols);
-    size_t elem = rows * cols;
+    size_t elem  = rows * cols;
     size_t bytes = elem * sizeof(float);
 
     dim3 block(BDIMX, BDIMY);
     dim3 grid((cols + block.x - 1) / block.x, (rows + block.y - 1) / block.y);
 
-    float *h_A = (float *)malloc(bytes);
+    float *h_A      = (float *)malloc(bytes);
     float *host_Ref = (float *)malloc(bytes);
-    float *gpu_Ref = (float *)malloc(bytes);
+    float *gpu_Ref  = (float *)malloc(bytes);
 
     initializeData<float>(h_A, elem);
 

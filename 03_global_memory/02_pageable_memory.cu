@@ -13,7 +13,7 @@ int main(int argc, char const *argv[])
 {
     setDevice();
 
-    unsigned int size = 1 << 22;
+    unsigned int size  = 1 << 22;
     unsigned int bytes = size * sizeof(float);
 
     float *h_a = (float *)malloc(bytes);

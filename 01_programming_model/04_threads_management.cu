@@ -26,7 +26,7 @@ __global__ void hello_from_gpu_dim2()
     // 线程唯一ID的获取方式
     const int bId = gridDim.x * blockIdx.y + blockIdx.x;    // block在grid中的唯一ID
     const int tId = blockDim.x * threadIdx.y + threadIdx.x; // thread在block中的唯一ID
-    const int Id = bId * blockDim.x * blockDim.y + tId;     // thread在grid中的唯一ID
+    const int Id  = bId * blockDim.x * blockDim.y + tId;    // thread在grid中的唯一ID
 
     printf("The unique thread id %d is the Thread (%d, %d) in the Block (%d, %d): Hello World from the GPU!\n", Id, tidx, tidy, bidx, bidy);
 }
@@ -44,7 +44,7 @@ __global__ void hello_from_gpu_dim3()
     // 线程唯一ID的获取方式
     const int bId = gridDim.x * gridDim.y * blockIdx.z + gridDim.x * blockIdx.y + blockIdx.x;       // block在grid中的唯一ID
     const int tId = blockDim.x * blockDim.y * threadIdx.z + blockDim.x * threadIdx.y + threadIdx.x; // thread在block中的唯一ID
-    const int Id = bId * blockDim.x * blockDim.y * blockDim.z + tId;                                // thread在grid中的唯一ID
+    const int Id  = bId * blockDim.x * blockDim.y * blockDim.z + tId;                               // thread在grid中的唯一ID
 
     printf("The unique thread id %d is the Thread (%d, %d, %d) in the Block (%d, %d, %d): Hello World from the GPU!\n", Id, tidx, tidy, tidz, bidx, bidy, bidz);
 }

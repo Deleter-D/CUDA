@@ -31,7 +31,7 @@ __global__ void sumMatrixOnGPU1D(float *MatA, float *MatB, float *MatC, int nx, 
     {
         for (int iy = 0; iy < ny; iy++)
         {
-            int idx = iy * nx + ix; // 遍历线程内待处理的列向量
+            int idx   = iy * nx + ix; // 遍历线程内待处理的列向量
             MatC[idx] = MatA[idx] + MatB[idx];
         }
     }
@@ -45,16 +45,16 @@ int main(int argc, char const *argv[])
     int nx = 1 << 14; // 16384
     int ny = 1 << 14; // 16384
 
-    int nxy = nx * ny;
+    int nxy    = nx * ny;
     int nBytes = nxy * sizeof(float);
     printf("Matrix size: (%d, %d)\n", nx, ny);
 
     // 申请主机内存
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A = (float *)malloc(nBytes);
-    h_B = (float *)malloc(nBytes);
+    h_A     = (float *)malloc(nBytes);
+    h_B     = (float *)malloc(nBytes);
     hostRef = (float *)malloc(nBytes);
-    gpuRef = (float *)malloc(nBytes);
+    gpuRef  = (float *)malloc(nBytes);
 
     // 初始化主机端数据
     initializeData<float>(h_A, nxy);

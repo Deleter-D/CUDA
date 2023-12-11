@@ -25,8 +25,8 @@ void sumMatrixOnHost(float *A, float *B, float *C, const int nx, const int ny)
 
 __global__ void sumMatrixGPU(float *A, float *B, float *C, const int nx, const int ny)
 {
-    unsigned int ix = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned int iy = blockIdx.y * blockDim.y + threadIdx.y;
+    unsigned int ix  = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int iy  = blockIdx.y * blockDim.y + threadIdx.y;
     unsigned int idx = iy * nx + ix;
 
     if (ix < nx && iy < ny)
@@ -38,7 +38,7 @@ int main(int argc, char const *argv[])
     setDevice();
 
     int nx, ny;
-    nx = ny = 1 << 12;
+    nx = ny   = 1 << 12;
     int bytes = nx * ny * sizeof(float);
     printf("Matrix size: %d x %d\tTotal: %d\n\n", nx, ny, nx * ny);
 

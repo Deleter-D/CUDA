@@ -48,7 +48,7 @@ __global__ void hello_from_gpu()
 {
     const int bid = blockIdx.x;
     const int tid = threadIdx.x;
-    const int id = blockDim.x * blockIdx.x + threadIdx.x;
+    const int id  = blockDim.x * blockIdx.x + threadIdx.x;
 
     printf("Hello World from block %d and thread %d, global id %d\n", bid, tid, id);
 }

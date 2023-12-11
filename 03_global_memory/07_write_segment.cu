@@ -20,7 +20,7 @@ void sumArraysHost(float *A, float *B, float *C, const int size, int offset)
 __global__ void sumArraysWriteOffset(float *A, float *B, float *C, const int size, int offset)
 {
     unsigned tid = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned j = tid + offset;
+    unsigned j   = tid + offset;
     if (j < size)
         C[j] = A[tid] + B[tid];
 }
@@ -41,10 +41,10 @@ int main(int argc, char const *argv[])
     dim3 grid((size + block.x - 1) / block.x);
 
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A = (float *)malloc(bytes);
-    h_B = (float *)malloc(bytes);
+    h_A     = (float *)malloc(bytes);
+    h_B     = (float *)malloc(bytes);
     hostRef = (float *)malloc(bytes);
-    gpuRef = (float *)malloc(bytes);
+    gpuRef  = (float *)malloc(bytes);
 
     initializeData<float>(h_A, size);
     initializeData<float>(h_B, size);

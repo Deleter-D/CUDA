@@ -13,3 +13,7 @@ install(TARGETS 03_reduce_with_shared_memory DESTINATION 04_shared_and_constant_
 add_executable(04_transpose_with_shared_memory 04_transpose_with_shared_memory.cu)
 set_target_properties(04_transpose_with_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
 install(TARGETS 04_transpose_with_shared_memory DESTINATION 04_shared_and_constant_memory)
+
+add_executable(05_constant_stencli 05_constant_stencli.cu)
+set_target_properties(05_constant_stencli PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+install(TARGETS 05_constant_stencli DESTINATION 04_shared_and_constant_memory)

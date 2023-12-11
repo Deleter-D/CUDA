@@ -4,7 +4,7 @@
 int main(int argc, char const *argv[])
 {
     // >>> 主机内存分配及其初始化 <<<
-    int elemCount = 512;                           // 元素个数
+    int elemCount     = 512;                       // 元素个数
     size_t bytesCount = elemCount * sizeof(float); // 总字节数
     float *h_A, *h_B, *h_C;
     // 申请主机内存

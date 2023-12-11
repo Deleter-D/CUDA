@@ -117,7 +117,7 @@ __global__ void reduceSmemUnroll(int *g_idata, int *g_odata, unsigned int size)
     {
         int a1, a2, a3, a4;
         a1 = a2 = a3 = a4 = 0;
-        a1 = g_idata[idx];
+        a1                = g_idata[idx];
         if (idx + blockDim.x < size)
             a2 = g_idata[idx + blockDim.x];
         if (idx + blockDim.x * 2 < size)
@@ -176,6 +176,7 @@ __global__ void reduceSmemUnrollDyn(int *g_idata, int *g_odata, unsigned int siz
     {
         int a1, a2, a3, a4;
         a1 = a2 = a3 = a4 = 0;
+
         a1 = g_idata[idx];
         if (idx + blockDim.x < size)
             a2 = g_idata[idx + blockDim.x];
@@ -255,7 +256,7 @@ int main(int argc, char const *argv[])
     int *h_idata, *h_odata, *temp;
     h_idata = (int *)malloc(size * sizeof(int));
     h_odata = (int *)malloc(grid.x * sizeof(int));
-    temp = (int *)malloc(size * sizeof(int)); // 用于CPU端求和
+    temp    = (int *)malloc(size * sizeof(int)); // 用于CPU端求和
 
     initializeData<int>(h_idata, size);
     memcpy(temp, h_idata, size * sizeof(int));
@@ -280,7 +281,7 @@ int main(int argc, char const *argv[])
     struct timeval tp;
     gettimeofday(&tp, NULL);
     double start_cpu = (double)(tp.tv_sec * 1.e3) + (double)(tp.tv_usec * 1.e-3);
-    cpu_sum = recursiveReduce(temp, size);
+    cpu_sum          = recursiveReduce(temp, size);
     gettimeofday(&tp, NULL);
     double elapsed_time_cpu = (double)(tp.tv_sec * 1.e3) + (double)(tp.tv_usec * 1.e-3) - start_cpu;
     printf("cpu reduce\t\telapsed %g ms\tcpu_sum: %d\n", elapsed_time_cpu, cpu_sum);

@@ -55,7 +55,7 @@ int main(int argc, char const *argv[])
     int power = 10;
     if (argc > 1)
         power = atoi(argv[1]);
-    int size = 1 << power;
+    int size     = 1 << power;
     size_t bytes = size * sizeof(float);
     if (power < 18)
         printf("Vector size %d,\t%3.0f KB\n", size, (float)bytes / 1024.0f);
@@ -64,10 +64,10 @@ int main(int argc, char const *argv[])
 
     // 使用设备内存
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A = (float *)malloc(bytes);
-    h_B = (float *)malloc(bytes);
+    h_A     = (float *)malloc(bytes);
+    h_B     = (float *)malloc(bytes);
     hostRef = (float *)malloc(bytes);
-    gpuRef = (float *)malloc(bytes);
+    gpuRef  = (float *)malloc(bytes);
 
     initializeData<float>(h_A, size);
     initializeData<float>(h_B, size);

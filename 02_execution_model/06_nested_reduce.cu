@@ -1,6 +1,7 @@
+#include <cuda_runtime.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <cuda_runtime.h>
+
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
@@ -119,7 +120,7 @@ __global__ void reduceNeighbored(int *g_idata, int *g_odata, unsigned int size)
 
 int main(int argc, char const *argv[])
 {
-    int nblock = 1024;
+    int nblock  = 1024;
     int nthread = 512;
 
     if (argc > 1)
@@ -140,9 +141,9 @@ int main(int argc, char const *argv[])
 
     int *h_idata, *h_odata, *temp;
     size_t bytes = size * sizeof(int);
-    h_idata = (int *)malloc(bytes);
-    h_odata = (int *)malloc(grid.x * sizeof(int));
-    temp = (int *)malloc(bytes);
+    h_idata      = (int *)malloc(bytes);
+    h_odata      = (int *)malloc(grid.x * sizeof(int));
+    temp         = (int *)malloc(bytes);
 
     initializeData<int>(h_idata, size);
     memcpy(temp, h_idata, bytes);
@@ -166,7 +167,7 @@ int main(int argc, char const *argv[])
     struct timeval tp;
     gettimeofday(&tp, NULL);
     double start_cpu = (double)(tp.tv_sec * 1.e3) + (double)(tp.tv_usec * 1.e-3);
-    cpu_sum = recursiveReduce(temp, size);
+    cpu_sum          = recursiveReduce(temp, size);
     gettimeofday(&tp, NULL);
     double elapsed_time_cpu = (double)(tp.tv_sec * 1.e3) + (double)(tp.tv_usec * 1.e-3) - start_cpu;
     printf("cpu reduce\telapsed %g ms\tcpu_sum: %d\n", elapsed_time_cpu, cpu_sum);
