@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include <cuda_runtime.h>
+#include <stdio.h>
+
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 

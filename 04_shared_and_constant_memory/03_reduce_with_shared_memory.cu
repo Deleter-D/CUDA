@@ -1,6 +1,7 @@
+#include <cuda_runtime.h>
 #include <stdio.h>
 #include <sys/time.h>
-#include <cuda_runtime.h>
+
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 

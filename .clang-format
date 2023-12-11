@@ -1,0 +1,11 @@
+BasedOnStyle: Google
+ColumnLimit: 0
+IndentWidth: 4
+TabWidth: 4
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterControlStatement: Always
+    AfterFunction: true
+    BeforeElse: true
+    AfterStruct: true
+SpacesBeforeTrailingComments: 1

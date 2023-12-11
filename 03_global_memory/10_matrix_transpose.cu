@@ -1,5 +1,6 @@
-#include <stdio.h>
 #include <cuda_runtime.h>
+#include <stdio.h>
+
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
@@ -173,38 +174,38 @@ int main(int argc, char const *argv[])
 
     switch (kernelNum)
     {
-    case 0:
-        kernel = &copyRow;
-        kernelName = "CopyRow";
-        break;
-    case 1:
-        kernel = &copyCol;
-        kernelName = "CopyCol";
-        break;
-    case 2:
-        kernel = &transposeNaiveRow;
-        kernelName = "NaiveRow";
-        break;
-    case 3:
-        kernel = &transposeNaiveCol;
-        kernelName = "NaiveCol";
-        break;
-    case 4:
-        kernel = &transposeUnroll4Row;
-        kernelName = "Unroll4Row";
-        break;
-    case 5:
-        kernel = &transposeUnroll4Col;
-        kernelName = "Unroll4Col";
-        break;
-    case 6:
-        kernel = &transposeDiagonalRow;
-        kernelName = "DiagonalRow";
-        break;
-    case 7:
-        kernel = &transposeDiagonalCol;
-        kernelName = "DiagonalCol";
-        break;
+        case 0:
+            kernel = &copyRow;
+            kernelName = "CopyRow";
+            break;
+        case 1:
+            kernel = &copyCol;
+            kernelName = "CopyCol";
+            break;
+        case 2:
+            kernel = &transposeNaiveRow;
+            kernelName = "NaiveRow";
+            break;
+        case 3:
+            kernel = &transposeNaiveCol;
+            kernelName = "NaiveCol";
+            break;
+        case 4:
+            kernel = &transposeUnroll4Row;
+            kernelName = "Unroll4Row";
+            break;
+        case 5:
+            kernel = &transposeUnroll4Col;
+            kernelName = "Unroll4Col";
+            break;
+        case 6:
+            kernel = &transposeDiagonalRow;
+            kernelName = "DiagonalRow";
+            break;
+        case 7:
+            kernel = &transposeDiagonalCol;
+            kernelName = "DiagonalCol";
+            break;
     }
 
     // 预热

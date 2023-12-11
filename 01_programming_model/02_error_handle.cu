@@ -1,6 +1,6 @@
+#include <cuda_runtime.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <cuda_runtime.h>
 
 /*
     CUDA运行时的大多数API都支持返回错误代码，返回类型是cudaError_t

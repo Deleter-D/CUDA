@@ -59,8 +59,4 @@ void checkResult(T *hostRef, T *gpuRef, const int N, double rtol = 1e-5, double 
             printf("\ttotal: %d\n", dismatchCount);
         }
     }
-    else
-    {
-        printf("Arrays match!\n");
-    }
 }
