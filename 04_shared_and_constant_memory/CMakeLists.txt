@@ -17,3 +17,11 @@ install(TARGETS 04_transpose_with_shared_memory DESTINATION 04_shared_and_consta
 add_executable(05_constant_stencli 05_constant_stencli.cu)
 set_target_properties(05_constant_stencli PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
 install(TARGETS 05_constant_stencli DESTINATION 04_shared_and_constant_memory)
+
+add_executable(06_shuffle_instruction 06_shuffle_instruction.cu)
+set_target_properties(06_shuffle_instruction PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+install(TARGETS 06_shuffle_instruction DESTINATION 04_shared_and_constant_memory)
+
+add_executable(07_reduce_with_shuffle 07_reduce_with_shuffle.cu)
+set_target_properties(07_reduce_with_shuffle PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+install(TARGETS 07_reduce_with_shuffle DESTINATION 04_shared_and_constant_memory)

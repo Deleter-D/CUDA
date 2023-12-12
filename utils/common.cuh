@@ -28,7 +28,7 @@ cudaError_t ErrorCheck(cudaError_t error, const char *filename, int lineNumber)
 // 初始化设备
 void setDevice(int device = 0)
 {
-    int deviceCount = 0;
+    int deviceCount   = 0;
     cudaError_t error = ErrorCheck(cudaGetDeviceCount(&deviceCount), __FILE__, __LINE__); // 获取设备数量
     // 该API返回一个cudaError_t的枚举类
     if (error != cudaError_t::cudaSuccess || deviceCount == 0)
@@ -52,20 +52,4 @@ void setDevice(int device = 0)
     {
         printf("Set GPU %d for computing.\n", device);
     }
-}
-
-/**
- * @brief 预热核函数
- */
-__global__ void warmupKernel()
-{
-    // DO NOTHING
-}
-
-/**
- * @brief 预热核函数的封装函数
- */
-void warmupKernelDo()
-{
-    warmupKernel<<<32768, 512>>>();
 }
