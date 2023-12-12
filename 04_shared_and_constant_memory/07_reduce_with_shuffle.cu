@@ -101,7 +101,6 @@ int main(int argc, char const *argv[])
     free(tmp);
 
     ERROR_CHECK(cudaDeviceReset());
-    
 
     return 0;
 }
