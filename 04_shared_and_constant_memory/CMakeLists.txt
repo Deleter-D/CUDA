@@ -1,27 +1,27 @@
 add_executable(01_square_shared_memory 01_square_shared_memory.cu)
-set_target_properties(01_square_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(01_square_shared_memory PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 01_square_shared_memory DESTINATION 04_shared_and_constant_memory)
 
 add_executable(02_rectangle_shared_memory 02_rectangle_shared_memory.cu)
-set_target_properties(02_rectangle_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(02_rectangle_shared_memory PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 02_rectangle_shared_memory DESTINATION 04_shared_and_constant_memory)
 
 add_executable(03_reduce_with_shared_memory 03_reduce_with_shared_memory.cu)
-set_target_properties(03_reduce_with_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(03_reduce_with_shared_memory PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 03_reduce_with_shared_memory DESTINATION 04_shared_and_constant_memory)
 
 add_executable(04_transpose_with_shared_memory 04_transpose_with_shared_memory.cu)
-set_target_properties(04_transpose_with_shared_memory PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(04_transpose_with_shared_memory PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 04_transpose_with_shared_memory DESTINATION 04_shared_and_constant_memory)
 
 add_executable(05_constant_stencli 05_constant_stencli.cu)
-set_target_properties(05_constant_stencli PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(05_constant_stencli PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 05_constant_stencli DESTINATION 04_shared_and_constant_memory)
 
 add_executable(06_shuffle_instruction 06_shuffle_instruction.cu)
-set_target_properties(06_shuffle_instruction PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(06_shuffle_instruction PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 06_shuffle_instruction DESTINATION 04_shared_and_constant_memory)
 
 add_executable(07_reduce_with_shuffle 07_reduce_with_shuffle.cu)
-set_target_properties(07_reduce_with_shuffle PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(07_reduce_with_shuffle PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 07_reduce_with_shuffle DESTINATION 04_shared_and_constant_memory)

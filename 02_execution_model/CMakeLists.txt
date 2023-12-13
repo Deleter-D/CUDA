@@ -1,27 +1,27 @@
 add_executable(01_warp_divergence 01_warp_divergence.cu)
-set_target_properties(01_warp_divergence PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(01_warp_divergence PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 01_warp_divergence DESTINATION 02_execution_model)
 
 add_executable(02_simple_device_query 02_simple_device_query.cu)
-set_target_properties(02_simple_device_query PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(02_simple_device_query PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 02_simple_device_query DESTINATION 02_execution_model)
 
 add_executable(03_parallelism 03_parallelism.cu)
-set_target_properties(03_parallelism PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(03_parallelism PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 03_parallelism DESTINATION 02_execution_model)
 
 add_executable(04_reduction 04_reduction.cu)
-set_target_properties(04_reduction PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(04_reduction PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 04_reduction DESTINATION 02_execution_model)
 
 add_executable(05_nested_hello_world 05_nested_hello_world.cu)
 set_target_properties(05_nested_hello_world PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(05_nested_hello_world PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(05_nested_hello_world PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 target_link_libraries(05_nested_hello_world cudadevrt)
 install(TARGETS 05_nested_hello_world DESTINATION 02_execution_model)
 
 add_executable(06_nested_reduce 06_nested_reduce.cu)
 set_target_properties(06_nested_reduce PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-set_target_properties(06_nested_reduce PROPERTIES CUDA_ARCHITECTURES "50;60;70;80")
+set_target_properties(06_nested_reduce PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 target_link_libraries(06_nested_reduce cudadevrt)
 install(TARGETS 06_nested_reduce DESTINATION 02_execution_model)
