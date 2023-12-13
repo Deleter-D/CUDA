@@ -1,3 +1,14 @@
-add_executable(01_hyper-Q 01_hyper-Q.cu)
-set_target_properties(01_hyper-Q PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
-install(TARGETS 01_hyper-Q DESTINATION 05_stream_and_concurrence)
+find_package(OpenMP REQUIRED)
+
+add_executable(01_hyper-Q_depth 01_hyper-Q_depth.cu)
+set_target_properties(01_hyper-Q_depth PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 01_hyper-Q_depth DESTINATION 05_stream_and_concurrence)
+
+add_executable(02_hyper-Q_breadth 02_hyper-Q_breadth.cu)
+set_target_properties(02_hyper-Q_breadth PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 02_hyper-Q_breadth DESTINATION 05_stream_and_concurrence)
+
+add_executable(03_hyper-Q_OpenMP 03_hyper-Q_OpenMP.cu)
+set_target_properties(03_hyper-Q_OpenMP PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+target_link_libraries(03_hyper-Q_OpenMP OpenMP::OpenMP_CXX)
+install(TARGETS 03_hyper-Q_OpenMP DESTINATION 05_stream_and_concurrence)

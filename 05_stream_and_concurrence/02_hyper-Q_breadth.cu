@@ -96,11 +96,21 @@ int main(int argc, char const* argv[])
 
     ERROR_CHECK(cudaEventRecord(start));
 
+    // 深度优先调度
     for (int i = 0; i < stream_count; i++)
     {
         kernel_1<<<grid, block, 0, streams[i]>>>();
+    }
+    for (int i = 0; i < stream_count; i++)
+    {
         kernel_2<<<grid, block, 0, streams[i]>>>();
+    }
+    for (int i = 0; i < stream_count; i++)
+    {
         kernel_3<<<grid, block, 0, streams[i]>>>();
+    }
+    for (int i = 0; i < stream_count; i++)
+    {
         kernel_4<<<grid, block, 0, streams[i]>>>();
     }
 
