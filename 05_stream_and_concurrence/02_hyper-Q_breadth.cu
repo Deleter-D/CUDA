@@ -5,58 +5,56 @@
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
-#define SIZE 300000
+#define SIZE (1 << 18)
 
-__global__ void kernel_1()
+__global__ void kernel_1(float* data)
 {
-    double sum = 0.0;
-
+    float sum = 0.0;
     for (int i = 0; i < SIZE; i++)
     {
-        sum = sum + tan(0.1) * tan(0.1);
+        sum += sum + tan(0.1) * tan(0.1);
     }
+    *data = sum;
 }
 
-__global__ void kernel_2()
+__global__ void kernel_2(float* data)
 {
-    double sum = 0.0;
-
+    float sum = 0.0;
     for (int i = 0; i < SIZE; i++)
     {
-        sum = sum + tan(0.1) * tan(0.1);
+        sum += sum + tan(0.1) * tan(0.1);
     }
+    *data = sum;
 }
 
-__global__ void kernel_3()
+__global__ void kernel_3(float* data)
 {
-    double sum = 0.0;
-
+    float sum = 0.0;
     for (int i = 0; i < SIZE; i++)
     {
-        sum = sum + tan(0.1) * tan(0.1);
+        sum += sum + tan(0.1) * tan(0.1);
     }
+    *data = sum;
 }
 
-__global__ void kernel_4()
+__global__ void kernel_4(float* data)
 {
-    double sum = 0.0;
-
+    float sum = 0.0;
     for (int i = 0; i < SIZE; i++)
     {
-        sum = sum + tan(0.1) * tan(0.1);
+        sum += sum + tan(0.1) * tan(0.1);
     }
+    *data = sum;
 }
 
 int main(int argc, char const* argv[])
 {
     int stream_count = 4;
-    int size         = 1 << 12;
-    int block_size   = 512;
 
     if (argc > 1) stream_count = atoi(argv[1]);
 
     char* env_name = "CUDA_DEVICE_MAX_CONNECTIONS";
-    setenv(env_name, "32", 1);
+    setenv(env_name, "1", 1);
     printf("%s = %s\n", env_name, getenv(env_name));
 
     setDevice();
@@ -79,6 +77,9 @@ int main(int argc, char const* argv[])
 
     printf("> Compute Capability %d.%d hardware with %d multi-processors\n", prop.major, prop.minor, prop.multiProcessorCount);
 
+    float* d_data;
+    ERROR_CHECK(cudaMalloc((void**)&d_data, sizeof(float)));
+
     cudaStream_t* streams = (cudaStream_t*)malloc(stream_count * sizeof(cudaStream_t));
 
     for (int i = 0; i < stream_count; i++)
@@ -86,8 +87,8 @@ int main(int argc, char const* argv[])
         ERROR_CHECK(cudaStreamCreate(&(streams[i])));
     }
 
-    dim3 block(block_size);
-    dim3 grid((size + block.x - 1) / block.x);
+    dim3 block(1);
+    dim3 grid(1);
 
     float elapsedTime;
     cudaEvent_t start, stop;
@@ -99,19 +100,19 @@ int main(int argc, char const* argv[])
     // 深度优先调度
     for (int i = 0; i < stream_count; i++)
     {
-        kernel_1<<<grid, block, 0, streams[i]>>>();
+        kernel_1<<<grid, block, 0, streams[i]>>>(d_data);
     }
     for (int i = 0; i < stream_count; i++)
     {
-        kernel_2<<<grid, block, 0, streams[i]>>>();
+        kernel_2<<<grid, block, 0, streams[i]>>>(d_data);
     }
     for (int i = 0; i < stream_count; i++)
     {
-        kernel_3<<<grid, block, 0, streams[i]>>>();
+        kernel_3<<<grid, block, 0, streams[i]>>>(d_data);
     }
     for (int i = 0; i < stream_count; i++)
     {
-        kernel_4<<<grid, block, 0, streams[i]>>>();
+        kernel_4<<<grid, block, 0, streams[i]>>>(d_data);
     }
 
     ERROR_CHECK(cudaEventRecord(stop));
