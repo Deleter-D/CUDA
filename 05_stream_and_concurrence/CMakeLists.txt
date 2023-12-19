@@ -17,3 +17,7 @@ install(TARGETS 03_hyper-Q_OpenMP DESTINATION 05_stream_and_concurrence)
 add_executable(04_hyper-Q_dependence 04_hyper-Q_dependence.cu)
 set_target_properties(04_hyper-Q_dependence PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 04_hyper-Q_dependence DESTINATION 05_stream_and_concurrence)
+
+add_executable(05_multi_add_depth 05_multi_add_depth.cu)
+set_target_properties(05_multi_add_depth PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 05_multi_add_depth DESTINATION 05_stream_and_concurrence)
