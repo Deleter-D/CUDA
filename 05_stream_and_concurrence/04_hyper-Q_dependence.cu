@@ -88,6 +88,13 @@ int main(int argc, char const* argv[])
         ERROR_CHECK(cudaStreamCreate(&(streams[i])));
     }
 
+    // 创建同步事件
+    cudaEvent_t* kernelEvent = (cudaEvent_t*)malloc(stream_count * sizeof(cudaEvent_t));
+    for (int i = 0; i < stream_count; i++)
+    {
+        ERROR_CHECK(cudaEventCreateWithFlags(&kernelEvent[i], cudaEventDisableTiming));
+    }
+
     dim3 block(1);
     dim3 grid(1);
 
@@ -98,14 +105,17 @@ int main(int argc, char const* argv[])
 
     ERROR_CHECK(cudaEventRecord(start));
 
-    // 深度优先调度
     for (int i = 0; i < stream_count; i++)
     {
         kernel_1<<<grid, block, 0, streams[i]>>>(d_data);
         kernel_2<<<grid, block, 0, streams[i]>>>(d_data);
         kernel_3<<<grid, block, 0, streams[i]>>>(d_data);
-        // kernel_3<<<grid, block>>>(d_data);
         kernel_4<<<grid, block, 0, streams[i]>>>(d_data);
+
+        // 每个流完成时记录不同的事件
+        ERROR_CHECK(cudaEventRecord(kernelEvent[i], streams[i]));
+        // 使最后一个流等待其他所有流
+        ERROR_CHECK(cudaStreamWaitEvent(streams[stream_count - 1], kernelEvent[i], 0));
     }
 
     ERROR_CHECK(cudaEventRecord(stop));

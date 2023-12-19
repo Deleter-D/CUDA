@@ -13,3 +13,7 @@ set_target_properties(03_hyper-Q_OpenMP PROPERTIES CUDA_ARCHITECTURES ${TARGET_A
 set_target_properties(03_hyper-Q_OpenMP PROPERTIES COMPILE_FLAGS "-O3 -Xcompiler -fopenmp -lgomp")
 target_link_libraries(03_hyper-Q_OpenMP OpenMP::OpenMP_CXX)
 install(TARGETS 03_hyper-Q_OpenMP DESTINATION 05_stream_and_concurrence)
+
+add_executable(04_hyper-Q_dependence 04_hyper-Q_dependence.cu)
+set_target_properties(04_hyper-Q_dependence PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 04_hyper-Q_dependence DESTINATION 05_stream_and_concurrence)
