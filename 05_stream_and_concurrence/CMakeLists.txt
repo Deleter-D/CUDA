@@ -21,3 +21,7 @@ install(TARGETS 04_hyper-Q_dependence DESTINATION 05_stream_and_concurrence)
 add_executable(05_multi_add_depth 05_multi_add_depth.cu)
 set_target_properties(05_multi_add_depth PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 05_multi_add_depth DESTINATION 05_stream_and_concurrence)
+
+add_executable(06_stream_callback 06_stream_callback.cu)
+set_target_properties(06_stream_callback PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 06_stream_callback DESTINATION 05_stream_and_concurrence)

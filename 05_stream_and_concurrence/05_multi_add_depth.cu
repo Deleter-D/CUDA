@@ -31,7 +31,7 @@ int main(int argc, char const *argv[])
 
     // 通过环境变量调整流的行为
     char *env_name = "CUDA_DEVICE_MAX_CONNECTIONS";
-    setenv(env_name, "1", 1);
+    setenv(env_name, "32", 1);
     printf("%s = %s\n", env_name, getenv(env_name));
 
     setDevice();
