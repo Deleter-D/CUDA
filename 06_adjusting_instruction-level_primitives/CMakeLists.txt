@@ -1,0 +1,7 @@
+add_executable(01_floating_point_accuracy 01_floating_point_accuracy.cu)
+set_target_properties(01_floating_point_accuracy PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 01_floating_point_accuracy DESTINATION 06_adjusting_instruction-level_primitives)
+
+add_executable(02_floating_point_perf 02_floating_point_perf.cu)
+set_target_properties(02_floating_point_perf PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 02_floating_point_perf DESTINATION 06_adjusting_instruction-level_primitives)
