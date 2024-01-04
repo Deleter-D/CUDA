@@ -13,3 +13,7 @@ install(TARGETS 03_intrinsic_standard_comp DESTINATION 06_adjusting_instruction-
 add_executable(04_manipulation_instruction_generation 04_manipulation_instruction_generation.cu)
 set_target_properties(04_manipulation_instruction_generation PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 04_manipulation_instruction_generation DESTINATION 06_adjusting_instruction-level_primitives)
+
+add_executable(05_atomic_operation 05_atomic_operation.cu)
+set_target_properties(05_atomic_operation PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 05_atomic_operation DESTINATION 06_adjusting_instruction-level_primitives)

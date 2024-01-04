@@ -46,9 +46,16 @@ __global__ void divisionIntrinsic(float a, float b, float* c, int iterations)
     }
 }
 
+// 当--fmad=true，这里的乘加运算会被融合优化
 __global__ void fmad(float* ptr)
 {
     *ptr = (*ptr) * (*ptr) + (*ptr);
+}
+
+// 即使--fmad=true，这里的乘加运算也不会被融合优化
+__global__ void fmadBlocked(float* ptr)
+{
+    *ptr = __fmul_rn((*ptr), (*ptr)) + (*ptr);
 }
 
 int main(int argc, char const* argv[])
