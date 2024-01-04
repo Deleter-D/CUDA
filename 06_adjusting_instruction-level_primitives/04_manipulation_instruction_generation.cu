@@ -5,11 +5,14 @@
 #include "../utils/data.cuh"
 
 /*
-    使用如下命令编译PTX代码
-    nvcc --ptx -o 03_intrinsic_standard_comp.ptx /path/to/03_intrinsic_standard_comp.cu
+    使用如下命令编译fmad优化的PTX代码
+    nvcc --ptx --fmad=true -o 04_manipulation_instruction_generation.ptx /path/to/04_manipulation_instruction_generation.cu
+
+    使用如下命令编译禁用fmad优化的PTX代码
+    nvcc --ptx --fmad=false -o 04_manipulation_instruction_generation.ptx /path/to/04_manipulation_instruction_generation.cu
 */
 
-__global__ void standardKernel(float a, float* out, int iterations)
+__global__ void division(float a, float b, float* c, int iterations)
 {
     unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -19,14 +22,14 @@ __global__ void standardKernel(float a, float* out, int iterations)
 
         for (int i = 0; i < iterations; i++)
         {
-            tmp = powf(a, 2.0f);
+            tmp = a / b;
         }
 
-        *out = tmp;
+        *c = tmp;
     }
 }
 
-__global__ void intrinsicKernel(float a, float* out, int iterations)
+__global__ void divisionIntrinsic(float a, float b, float* c, int iterations)
 {
     unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -36,11 +39,16 @@ __global__ void intrinsicKernel(float a, float* out, int iterations)
 
         for (int i = 0; i < iterations; i++)
         {
-            tmp = __powf(a, 2.0f);
+            tmp = __fdividef(a, b);
         }
 
-        *out = tmp;
+        *c = tmp;
     }
+}
+
+__global__ void fmad(float* ptr)
+{
+    *ptr = (*ptr) * (*ptr) + (*ptr);
 }
 
 int main(int argc, char const* argv[])
@@ -50,13 +58,13 @@ int main(int argc, char const* argv[])
     int nRuns        = 30;
     int nKernelIters = 1000;
 
-    float *d_standard_out, h_standard_out;
-    ERROR_CHECK(cudaMalloc((void**)&d_standard_out, sizeof(float)));
+    float *d_operator_out, h_operator_out;
+    ERROR_CHECK(cudaMalloc((void**)&d_operator_out, sizeof(float)));
 
     float *d_intrinsic_out, h_intrinsic_out;
     ERROR_CHECK(cudaMalloc((void**)&d_intrinsic_out, sizeof(float)));
 
-    float input_value = 4283.14;
+    float a = 4283.14f, b = 1.45f;
 
     float mean_standard_time  = 0.0f;
     float mean_intrinsic_time = 0.0f;
@@ -69,33 +77,33 @@ int main(int argc, char const* argv[])
     for (int i = 0; i < nRuns; i++)
     {
         ERROR_CHECK(cudaEventRecord(start));
-        standardKernel<<<1, 32>>>(input_value, d_standard_out, nKernelIters);
+        division<<<1, 32>>>(a, b, d_operator_out, nKernelIters);
         ERROR_CHECK(cudaEventRecord(stop));
         ERROR_CHECK(cudaEventSynchronize(stop));
         ERROR_CHECK(cudaEventElapsedTime(&elapase_time, start, stop));
         mean_standard_time += elapase_time;
 
         ERROR_CHECK(cudaEventRecord(start));
-        intrinsicKernel<<<1, 32>>>(input_value, d_intrinsic_out, nKernelIters);
+        divisionIntrinsic<<<1, 32>>>(a, b, d_intrinsic_out, nKernelIters);
         ERROR_CHECK(cudaEventRecord(stop));
         ERROR_CHECK(cudaEventSynchronize(stop));
         ERROR_CHECK(cudaEventElapsedTime(&elapase_time, start, stop));
         mean_intrinsic_time += elapase_time;
     }
 
-    ERROR_CHECK(cudaMemcpy(&h_standard_out, d_standard_out, sizeof(float), cudaMemcpyDeviceToHost));
+    ERROR_CHECK(cudaMemcpy(&h_operator_out, d_operator_out, sizeof(float), cudaMemcpyDeviceToHost));
     ERROR_CHECK(cudaMemcpy(&h_intrinsic_out, d_intrinsic_out, sizeof(float), cudaMemcpyDeviceToHost));
-    float host_value = powf(input_value, 2.0f);
+    float host_value = a / b;
 
     printf("Host calculated\t\t\t%f\n", host_value);
-    printf("Standard Device calculated\t%f\n", h_standard_out);
+    printf("Standard Device calculated\t%f\n", h_operator_out);
     printf("Intrinsic Device calculated\t%f\n", h_intrinsic_out);
-    printf("Host equals Standard?\t\t%s diff=%e\n", host_value == h_standard_out ? "Yes" : "No", fabs(host_value - h_standard_out));
+    printf("Host equals Standard?\t\t%s diff=%e\n", host_value == h_operator_out ? "Yes" : "No", fabs(host_value - h_operator_out));
     printf("Host equals Intrinsic?\t\t%s diff=%e\n", host_value == h_intrinsic_out ? "Yes" : "No", fabs(host_value - h_intrinsic_out));
-    printf("Standard equals Intrinsic?\t%s diff=%e\n", h_standard_out == h_intrinsic_out ? "Yes" : "No", fabs(h_standard_out - h_intrinsic_out));
+    printf("Standard equals Intrinsic?\t%s diff=%e\n", h_operator_out == h_intrinsic_out ? "Yes" : "No", fabs(h_operator_out - h_intrinsic_out));
     printf("\n");
-    printf("Mean execution time for standard function powf:    %f ms\n", mean_standard_time);
-    printf("Mean execution time for intrinsic function __powf: %f ms\n", mean_intrinsic_time);
+    printf("Mean execution time for standard operator /:\t\t%f ms\n", mean_standard_time);
+    printf("Mean execution time for intrinsic function __fdividef:\t%f ms\n", mean_intrinsic_time);
 
     return 0;
 }
