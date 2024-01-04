@@ -51,14 +51,6 @@ __global__ void doubleComputing(double* outputs, double* inputs, int size, size_
     }
 }
 
-inline double miliseconds()
-{
-    struct timeval tp;
-    struct timezone tzp;
-    int i = gettimeofday(&tp, &tzp);
-    return ((double)tp.tv_sec * 1.e3 + (double)tp.tv_usec * 1.e-3);
-}
-
 void floatTest(size_t size, int iterations,
                int blocksPerGrid, int threadsPerBlock,
                float* toDeviceTime, float* kernelTime, float* fromDeviceTime,
@@ -169,6 +161,8 @@ void doubleTest(size_t size, int iterations,
 
 int main(int argc, char const* argv[])
 {
+    setDevice();
+
     int i;
     double meanFloatToDeviceTime, meanFloatKernelTime, meanFloatFromDeviceTime;
     double meanDoubleToDeviceTime, meanDoubleKernelTime, meanDoubleFromDeviceTime;

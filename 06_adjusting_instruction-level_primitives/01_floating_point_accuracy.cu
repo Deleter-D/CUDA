@@ -17,6 +17,8 @@ __global__ void kernel(float *F, double *D)
 
 int main(int argc, char const *argv[])
 {
+    setDevice();
+
     float *deviceF;
     float h_deviceF;
     double *deviceD;
