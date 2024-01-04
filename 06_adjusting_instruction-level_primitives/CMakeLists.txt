@@ -17,3 +17,7 @@ install(TARGETS 04_manipulation_instruction_generation DESTINATION 06_adjusting_
 add_executable(05_atomic_operation 05_atomic_operation.cu)
 set_target_properties(05_atomic_operation PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
 install(TARGETS 05_atomic_operation DESTINATION 06_adjusting_instruction-level_primitives)
+
+add_executable(06_atomic_ordering 06_atomic_ordering.cu)
+set_target_properties(06_atomic_ordering PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+install(TARGETS 06_atomic_ordering DESTINATION 06_adjusting_instruction-level_primitives)
