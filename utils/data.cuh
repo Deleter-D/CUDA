@@ -21,6 +21,27 @@ void initializeData(T *ptr, int size)
     }
 }
 
+template <typename T>
+void initializeDataSparse(T *ptr, int size)
+{
+    double rMax = (double)RAND_MAX;
+
+    for (int i = 0; i < size; i++)
+    {
+        int r = rand();
+
+        if (r % 3 > 0)
+        {
+            ptr[i] = 0.0f;
+        }
+        else
+        {
+            double dr = (double)r;
+            ptr[i]    = (T)(dr / rMax) * 100.0;
+        }
+    }
+}
+
 /**
     @brief 检查运算结果
 

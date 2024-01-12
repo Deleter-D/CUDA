@@ -8,9 +8,20 @@
         const cudaError_t error = call;                                                             \
         if (error != cudaSuccess)                                                                   \
         {                                                                                           \
-            printf("Error: %s:%d,\n", __FILE__, __LINE__);                                          \
+            printf("CUDA error: %s:%d,\n", __FILE__, __LINE__);                                          \
             printf("\tcode: %s, reason: %s\n", cudaGetErrorName(error), cudaGetErrorString(error)); \
         }                                                                                           \
+    }
+
+// cuSPARSE错误检查宏函数
+#define ERROR_CHECK_CUSPARSE(call)                                                                          \
+    {                                                                                                       \
+        const cusparseStatus_t error = call;                                                                \
+        if (error != CUSPARSE_STATUS_SUCCESS)                                                               \
+        {                                                                                                   \
+            printf("cuSPARSE error: %s:%d,\n", __FILE__, __LINE__);                                         \
+            printf("\tcode: %s, reason: %s\n", cusparseGetErrorName(error), cusparseGetErrorString(error)); \
+        }                                                                                                   \
     }
 
 // 错误检查普通函数

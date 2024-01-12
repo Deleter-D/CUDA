@@ -1,0 +1,5 @@
+add_executable(01_cusparse 01_cusparse.cu)
+set_target_properties(01_cusparse PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+set_target_properties(01_cusparse PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(01_cusparse cusparse)
+install(TARGETS 01_cusparse DESTINATION 07_acceleration_library_and_OpenACC)
