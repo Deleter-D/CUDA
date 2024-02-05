@@ -6,22 +6,6 @@
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
-__global__ void generate_in_kernel()
-{
-    // 针对不同RNG算法创建状态
-    curandStateXORWOW_t rand_state;
-    // 为保证随机性，每个线程应当设置不同的种子，且避免用当前时间戳作为种子
-    unsigned long long seed = threadIdx.x;
-    // 子序列会使得curand_init()返回的序列是调用了(2^67 * subsequence + offset)次curand()的结果
-    unsigned long long subsequence = 1ULL;
-    unsigned long long offset      = 0ULL;
-
-    curand_init(seed, subsequence, offset, &rand_state);
-
-    float x = curand_normal(&rand_state);
-    printf("generate in kernel by thread %d:\t%f\n", threadIdx.x, x);
-}
-
 // 调用主机端API在主机生成
 void generate_on_host()
 {
@@ -108,6 +92,23 @@ void generate_on_device()
         printf("%f ", data[i]);
     }
     printf("\n");
+}
+
+// 调用设备端API
+__global__ void generate_in_kernel()
+{
+    // 针对不同RNG算法创建状态
+    curandStateXORWOW_t rand_state;
+    // 为保证随机性，每个线程应当设置不同的种子，且避免用当前时间戳作为种子
+    unsigned long long seed = threadIdx.x;
+    // 子序列会使得curand_init()返回的序列是调用了(2^67 * subsequence + offset)次curand()的结果
+    unsigned long long subsequence = 1ULL;
+    unsigned long long offset      = 0ULL;
+
+    curand_init(seed, subsequence, offset, &rand_state);
+
+    float x = curand_normal(&rand_state);
+    printf("generate in kernel by thread %d:\t%f\n", threadIdx.x, x);
 }
 
 int main(int argc, char const *argv[])
