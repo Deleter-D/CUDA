@@ -73,6 +73,7 @@
         "ios": "cpp",
         "filesystem": "cpp",
         "codecvt": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "complex": "cpp"
     }
 }

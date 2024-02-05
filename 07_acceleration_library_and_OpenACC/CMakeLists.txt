@@ -9,3 +9,9 @@ set_target_properties(02_cublas PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECT
 set_target_properties(02_cublas PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 target_link_libraries(02_cublas cublas)
 install(TARGETS 02_cublas DESTINATION 07_acceleration_library_and_OpenACC)
+
+add_executable(03_cufft 03_cufft.cu)
+set_target_properties(03_cufft PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+set_target_properties(03_cufft PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(03_cufft cufft)
+install(TARGETS 03_cufft DESTINATION 07_acceleration_library_and_OpenACC)

@@ -26,7 +26,7 @@
         }                                                                                                   \
     }
 
-// cuSPARSE错误检查宏函数
+// cuBLAS错误检查宏函数
 #define ERROR_CHECK_CUBLAS(call)                                                                          \
     {                                                                                                     \
         const cublasStatus_t error = call;                                                                \
@@ -35,6 +35,17 @@
             printf("cuBLAS error: %s:%d,\n", __FILE__, __LINE__);                                         \
             printf("\tcode: %s, reason: %s\n", cublasGetStatusName(error), cublasGetStatusString(error)); \
         }                                                                                                 \
+    }
+
+// cuFFT错误检查宏函数
+#define ERROR_CHECK_CUFFT(call)                                  \
+    {                                                            \
+        const cufftResult_t error = call;                        \
+        if (error != CUFFT_SUCCESS)                              \
+        {                                                        \
+            printf("cuFFT error: %s:%d,\n", __FILE__, __LINE__); \
+            printf("\tcode: %d\n", error);                       \
+        }                                                        \
     }
 
 // 错误检查普通函数
