@@ -15,3 +15,9 @@ set_target_properties(03_cufft PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTU
 set_target_properties(03_cufft PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 target_link_libraries(03_cufft cufft)
 install(TARGETS 03_cufft DESTINATION 07_acceleration_library_and_OpenACC)
+
+add_executable(04_curand 04_curand.cu)
+set_target_properties(04_curand PROPERTIES CUDA_ARCHITECTURES ${TARGET_ARCHITECTURES})
+set_target_properties(04_curand PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+target_link_libraries(04_curand curand)
+install(TARGETS 04_curand DESTINATION 07_acceleration_library_and_OpenACC)

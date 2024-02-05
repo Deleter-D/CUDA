@@ -1,5 +1,6 @@
 #pragma once
 #include <cublas_v2.h>
+#include <curand.h>
 #include <cusparse_v2.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,6 +47,17 @@
             printf("cuFFT error: %s:%d,\n", __FILE__, __LINE__); \
             printf("\tcode: %d\n", error);                       \
         }                                                        \
+    }
+
+// cuRAND错误检查宏函数
+#define ERROR_CHECK_CURAND(call)                                  \
+    {                                                             \
+        const curandStatus_t error = call;                        \
+        if (error != CURAND_STATUS_SUCCESS)                       \
+        {                                                         \
+            printf("cuRAND error: %s:%d,\n", __FILE__, __LINE__); \
+            printf("\tcode: %d\n", error);                        \
+        }                                                         \
     }
 
 // 错误检查普通函数
