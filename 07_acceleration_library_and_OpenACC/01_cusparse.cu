@@ -43,10 +43,8 @@ int main(int argc, char const *argv[])
     initializeData<float>(X, columns);
     initializeData<float>(Y, rows);
 
-    // for (int i = 0; i < rows * columns; i++)
-    // {
-    //     printf("%f\n", A[i]);
-    // }
+    float *host_Y = (float *)malloc(rows * sizeof(float)); // 存储主机端结果
+    memcpy(host_Y, Y, rows * sizeof(float));
 
     float *d_A, *d_X, *d_Y;
     int *d_row_offsets_A; // CSR中的行偏移数组
@@ -124,8 +122,6 @@ int main(int argc, char const *argv[])
     // 错误检查
     ERROR_CHECK(cudaMemcpy(Y, d_Y, rows * sizeof(float), cudaMemcpyDeviceToHost));
     ERROR_CHECK(cudaDeviceSynchronize());
-    float *host_Y = (float *)malloc(rows * sizeof(float));
-    memcpy(host_Y, Y, rows * sizeof(float));
     hostMV(&alpha, A, X, &beta, host_Y, rows, columns);
     checkResult<float>(host_Y, Y, rows, 2);
 
