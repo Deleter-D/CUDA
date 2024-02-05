@@ -5,11 +5,12 @@
 #include "../utils/common.cuh"
 #include "../utils/data.cuh"
 
-void hostMV(const void *alpha, float *matA, float *vecX, const void *beta, float *vecY, int rows, int cols)
+void hostMV(const void *alpha, float *matA, float *vecX, const void *beta, float *vecY,
+            int rows, int cols)
 {
-    float *alpha_f32 = (float *)alpha;
-    float *beta_f32  = (float *)beta;
-    printf("Host:  alpha: %f, beta: %f\n", *alpha_f32, *beta_f32);
+    float alpha_f32 = *((float *)alpha);
+    float beta_f32  = *((float *)beta);
+    printf("Host:  alpha: %f, beta: %f\n", alpha_f32, beta_f32);
     float *temp = (float *)malloc(rows * sizeof(float));
     memset(temp, 0, rows * sizeof(float));
 
@@ -17,9 +18,9 @@ void hostMV(const void *alpha, float *matA, float *vecX, const void *beta, float
     {
         for (int j = 0; j < cols; j++)
         {
-            temp[i] += (*alpha_f32) * matA[i * rows + j] * vecX[j];
+            temp[i] += alpha_f32 * matA[i * rows + j] * vecX[j];
         }
-        temp[i] += (*beta_f32) * vecY[i];
+        temp[i] += beta_f32 * vecY[i];
     }
     memcpy(vecY, temp, rows * sizeof(float));
     free(temp);
@@ -32,6 +33,9 @@ int main(int argc, char const *argv[])
     int rows    = 1024;    // 矩阵行数
     int columns = 1024;    // 矩阵列数
     int ld      = columns; // 矩阵leading_dimension
+
+    float alpha = 3.0f;
+    float beta  = 4.0f;
 
     // 本示例采用CSR格式存储稀疏矩阵
 
@@ -101,8 +105,6 @@ int main(int argc, char const *argv[])
     ERROR_CHECK_CUSPARSE(cusparseCreateDnVec(&dn_vec_Y, rows, d_Y, CUDA_R_32F));
 
     // 若有必要，为SpMV计算申请额外的buffer
-    float alpha = 3.0f;
-    float beta  = 4.0f;
     size_t spmv_buffer_size;
     void *d_spmv_buffer;
     ERROR_CHECK_CUSPARSE(cusparseSpMV_bufferSize(handle, CUSPARSE_OPERATION_NON_TRANSPOSE, &alpha, sp_mat, dn_vec_X, &beta, dn_vec_Y, CUDA_R_32F, CUSPARSE_SPMV_ALG_DEFAULT, &spmv_buffer_size));

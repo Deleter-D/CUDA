@@ -1,4 +1,6 @@
 #pragma once
+#include <cublas_v2.h>
+#include <cusparse_v2.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -8,7 +10,7 @@
         const cudaError_t error = call;                                                             \
         if (error != cudaSuccess)                                                                   \
         {                                                                                           \
-            printf("CUDA error: %s:%d,\n", __FILE__, __LINE__);                                          \
+            printf("CUDA error: %s:%d,\n", __FILE__, __LINE__);                                     \
             printf("\tcode: %s, reason: %s\n", cudaGetErrorName(error), cudaGetErrorString(error)); \
         }                                                                                           \
     }
@@ -22,6 +24,17 @@
             printf("cuSPARSE error: %s:%d,\n", __FILE__, __LINE__);                                         \
             printf("\tcode: %s, reason: %s\n", cusparseGetErrorName(error), cusparseGetErrorString(error)); \
         }                                                                                                   \
+    }
+
+// cuSPARSE错误检查宏函数
+#define ERROR_CHECK_CUBLAS(call)                                                                          \
+    {                                                                                                     \
+        const cublasStatus_t error = call;                                                                \
+        if (error != CUBLAS_STATUS_SUCCESS)                                                               \
+        {                                                                                                 \
+            printf("cuBLAS error: %s:%d,\n", __FILE__, __LINE__);                                         \
+            printf("\tcode: %s, reason: %s\n", cublasGetStatusName(error), cublasGetStatusString(error)); \
+        }                                                                                                 \
     }
 
 // 错误检查普通函数
