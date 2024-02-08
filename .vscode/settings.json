@@ -74,6 +74,7 @@
         "filesystem": "cpp",
         "codecvt": "cpp",
         "fstream": "cpp",
-        "complex": "cpp"
+        "complex": "cpp",
+        "__mutex_base": "c"
     }
 }
