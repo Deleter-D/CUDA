@@ -26,9 +26,14 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+cd ..
+
+cd ./07_acceleration_library_and_OpenACC
+make
+cd ..
+
 echo "running a test."
-cd ../executable
-./01_programming_model/01_hello_world
+./executable/01_programming_model/01_hello_world
 
 if [ $? -ne 0 ]; then
     echo "There are some errors in process test."
